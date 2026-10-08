@@ -1,0 +1,603 @@
+{
+ "questions": {
+  "tier": {
+   "type": "choice",
+   "instructions": "Classify this segment of a Solana memecoin launchpad business and pick the single best action.",
+   "criteria": {
+    "core": "large and reliable: invest to defend and deepen",
+    "grow": "rising momentum with acceptable reliability: invest to expand",
+    "fix": "material volume but reliability is clearly below the service average: fix engineering quality before spending on growth",
+    "watch": "small, flat, or ambiguous: monitor only",
+    "exit": "declining with no recovery path, or negligible volume: deprioritize"
+   }
+  },
+  "evidence": {
+   "type": "score",
+   "instructions": "How strong is the evidence for this call given 32 days of on-chain data? The window is shorter than a year, so treat confidence accordingly.",
+   "criteria": [
+    "no evidence",
+    "weak",
+    "moderate",
+    "strong",
+    "very strong"
+   ]
+  },
+  "conc_risk": {
+   "type": "noul",
+   "instructions": "Is this segment dangerously dependent on a single creator, wallet cluster, or counterparty?"
+  },
+  "fee_headroom": {
+   "type": "noul",
+   "instructions": "Could pump.fun raise its take rate by 0.25 percentage points on this segment without a large volume loss? (current: 1.25% on the bonding curve)"
+  }
+ },
+ "segments": [
+  {
+   "name": "classic launches (SOL-quoted, not mayhem)",
+   "state": {
+    "business": "Solana memecoin launchpad (pump.fun)",
+    "period_utc": "2026-08-31 to 2026-10-07",
+    "note": "failure_rate_pct is the share of launches flagged as a rug (drain or dev dump) within 300s. graduation_rate_pct counts true graduations; instant_graduations completed within 2s of launch and are bundles, not organic demand.",
+    "service_average_graduation_rate_pct": 2.06,
+    "service_average_rug_within_300s_pct": 57.7,
+    "segment": "classic launches (SOL-quoted, not mayhem)",
+    "launches": 723695,
+    "share_of_launches_pct": 62.6,
+    "graduation_rate_pct": 3.281,
+    "failure_rate_pct": 55.44,
+    "creator_sold_within_60s_pct": 42.67,
+    "volume_30d_usd": 3652993707,
+    "fee_rate_pct": 1.25
+   },
+   "answers": {
+    "tier": {
+     "type": "choice",
+     "choice": "core",
+     "confidence": 0.27,
+     "probabilities": {
+      "fix": 0.41,
+      "watch": 0.02,
+      "grow": 0.14,
+      "exit": 0.01,
+      "core": 0.42
+     }
+    },
+    "evidence": {
+     "type": "score",
+     "score": 2.25,
+     "confidence": 0.52,
+     "legend": {
+      "0": "no evidence",
+      "1": "weak",
+      "2": "moderate",
+      "3": "strong",
+      "4": "very strong"
+     },
+     "probabilities": {
+      "0": 0.01,
+      "1": 0.14,
+      "2": 0.45999999999999996,
+      "3": 0.36,
+      "4": 0.03
+     }
+    },
+    "conc_risk": {
+     "type": "noul",
+     "noul": 0.33
+    },
+    "fee_headroom": {
+     "type": "noul",
+     "noul": 0.47
+    }
+   }
+  },
+  {
+   "name": "mayhem-mode launches (pump.fun agent trades them)",
+   "state": {
+    "business": "Solana memecoin launchpad (pump.fun)",
+    "period_utc": "2026-08-31 to 2026-10-07",
+    "note": "failure_rate_pct is the share of launches flagged as a rug (drain or dev dump) within 300s. graduation_rate_pct counts true graduations; instant_graduations completed within 2s of launch and are bundles, not organic demand.",
+    "service_average_graduation_rate_pct": 2.06,
+    "service_average_rug_within_300s_pct": 57.7,
+    "segment": "mayhem-mode launches (pump.fun agent trades them)",
+    "launches": 302812,
+    "share_of_launches_pct": 26.19,
+    "graduation_rate_pct": 0.0172,
+    "chain_complete_pct": 2.84,
+    "failure_rate_pct": 87.89,
+    "creator_sold_within_60s_pct": 69.1,
+    "note_on_fees": "agent pays no protocol fee; other traders' fees go to an insurance fund"
+   },
+   "answers": {
+    "tier": {
+     "type": "choice",
+     "choice": "fix",
+     "confidence": 0.73,
+     "probabilities": {
+      "grow": 0.0,
+      "watch": 0.01,
+      "fix": 0.78,
+      "core": 0.0,
+      "exit": 0.21
+     }
+    },
+    "evidence": {
+     "type": "score",
+     "score": 2.29,
+     "confidence": 0.31,
+     "legend": {
+      "0": "no evidence",
+      "1": "weak",
+      "2": "moderate",
+      "3": "strong",
+      "4": "very strong"
+     },
+     "probabilities": {
+      "0": 0.01,
+      "1": 0.21,
+      "2": 0.32,
+      "3": 0.39999999999999997,
+      "4": 0.06
+     }
+    },
+    "conc_risk": {
+     "type": "noul",
+     "noul": 0.55
+    },
+    "fee_headroom": {
+     "type": "noul",
+     "noul": 0.31
+    }
+   }
+  },
+  {
+   "name": "other-quote launches (USDC/PYUSD/tokenized stocks)",
+   "state": {
+    "business": "Solana memecoin launchpad (pump.fun)",
+    "period_utc": "2026-08-31 to 2026-10-07",
+    "note": "failure_rate_pct is the share of launches flagged as a rug (drain or dev dump) within 300s. graduation_rate_pct counts true graduations; instant_graduations completed within 2s of launch and are bundles, not organic demand.",
+    "service_average_graduation_rate_pct": 2.06,
+    "service_average_rug_within_300s_pct": 57.7,
+    "segment": "other-quote launches (USDC/PYUSD/tokenized stocks)",
+    "launches": 129531,
+    "share_of_launches_pct": 11.2,
+    "chain_complete_pct": 1.59,
+    "creator_sold_within_60s_pct": 51.57
+   },
+   "answers": {
+    "tier": {
+     "type": "choice",
+     "choice": "fix",
+     "confidence": 0.74,
+     "probabilities": {
+      "fix": 0.79,
+      "grow": 0.0,
+      "watch": 0.06,
+      "exit": 0.15,
+      "core": 0.0
+     }
+    },
+    "evidence": {
+     "type": "score",
+     "score": 2.16,
+     "confidence": 0.48,
+     "legend": {
+      "0": "no evidence",
+      "1": "weak",
+      "2": "moderate",
+      "3": "strong",
+      "4": "very strong"
+     },
+     "probabilities": {
+      "0": 0.01,
+      "1": 0.21,
+      "2": 0.42,
+      "3": 0.33,
+      "4": 0.03
+     }
+    },
+    "conc_risk": {
+     "type": "noul",
+     "noul": 0.49
+    },
+    "fee_headroom": {
+     "type": "noul",
+     "noul": 0.36
+    }
+   }
+  },
+  {
+   "name": "first-time creators (0 prior launches)",
+   "state": {
+    "business": "Solana memecoin launchpad (pump.fun)",
+    "period_utc": "2026-08-31 to 2026-10-07",
+    "note": "failure_rate_pct is the share of launches flagged as a rug (drain or dev dump) within 300s. graduation_rate_pct counts true graduations; instant_graduations completed within 2s of launch and are bundles, not organic demand.",
+    "service_average_graduation_rate_pct": 2.06,
+    "service_average_rug_within_300s_pct": 57.7,
+    "segment": "first-time creators (0 prior launches)",
+    "launches": 48046,
+    "graduation_rate_pct": 6.82,
+    "failure_rate_pct": 69.2,
+    "mean_bundle_wallets": 2.67
+   },
+   "answers": {
+    "tier": {
+     "type": "choice",
+     "choice": "fix",
+     "confidence": 0.86,
+     "probabilities": {
+      "core": 0.01,
+      "watch": 0.02,
+      "grow": 0.08,
+      "fix": 0.89,
+      "exit": 0.0
+     }
+    },
+    "evidence": {
+     "type": "score",
+     "score": 2.18,
+     "confidence": 0.56,
+     "legend": {
+      "0": "no evidence",
+      "1": "weak",
+      "2": "moderate",
+      "3": "strong",
+      "4": "very strong"
+     },
+     "probabilities": {
+      "0": 0.0,
+      "1": 0.17,
+      "2": 0.49,
+      "3": 0.32,
+      "4": 0.02
+     }
+    },
+    "conc_risk": {
+     "type": "noul",
+     "noul": 0.42
+    },
+    "fee_headroom": {
+     "type": "noul",
+     "noul": 0.42
+    }
+   }
+  },
+  {
+   "name": "serial creators (20+ prior launches)",
+   "state": {
+    "business": "Solana memecoin launchpad (pump.fun)",
+    "period_utc": "2026-08-31 to 2026-10-07",
+    "note": "failure_rate_pct is the share of launches flagged as a rug (drain or dev dump) within 300s. graduation_rate_pct counts true graduations; instant_graduations completed within 2s of launch and are bundles, not organic demand.",
+    "service_average_graduation_rate_pct": 2.06,
+    "service_average_rug_within_300s_pct": 57.7,
+    "segment": "serial creators (20+ prior launches)",
+    "launches": 45703,
+    "graduation_rate_pct": 0.94,
+    "failure_rate_pct": 68.56,
+    "mean_prior_rugs": 0.689,
+    "mean_bundle_wallets": 1.96
+   },
+   "answers": {
+    "tier": {
+     "type": "choice",
+     "choice": "fix",
+     "confidence": 0.96,
+     "probabilities": {
+      "watch": 0.0,
+      "exit": 0.03,
+      "core": 0.0,
+      "grow": 0.0,
+      "fix": 0.97
+     }
+    },
+    "evidence": {
+     "type": "score",
+     "score": 2.27,
+     "confidence": 0.5,
+     "legend": {
+      "0": "no evidence",
+      "1": "weak",
+      "2": "moderate",
+      "3": "strong",
+      "4": "very strong"
+     },
+     "probabilities": {
+      "0": 0.0,
+      "1": 0.16,
+      "2": 0.43,
+      "3": 0.38,
+      "4": 0.03
+     }
+    },
+    "conc_risk": {
+     "type": "noul",
+     "noul": 0.49
+    },
+    "fee_headroom": {
+     "type": "noul",
+     "noul": 0.33
+    }
+   }
+  },
+  {
+   "name": "graduated pools on PumpSwap (first 30 min)",
+   "state": {
+    "business": "Solana memecoin launchpad (pump.fun)",
+    "period_utc": "2026-08-31 to 2026-10-07",
+    "note": "failure_rate_pct is the share of launches flagged as a rug (drain or dev dump) within 300s. graduation_rate_pct counts true graduations; instant_graduations completed within 2s of launch and are bundles, not organic demand.",
+    "service_average_graduation_rate_pct": 2.06,
+    "service_average_rug_within_300s_pct": 57.7,
+    "segment": "graduated pools on PumpSwap (first 30 min)",
+    "launches": 6545,
+    "lost_90pct_in_30min_pct": 62.35,
+    "median_seconds_to_collapse": 475.3,
+    "survivors_above_open_pct": 64.69,
+    "volume_30d_usd": 11706095821,
+    "fee_rate_pct": 0.3,
+    "protocol_take_pct": 0.05
+   },
+   "answers": {
+    "tier": {
+     "type": "choice",
+     "choice": "fix",
+     "confidence": 0.69,
+     "probabilities": {
+      "fix": 0.75,
+      "grow": 0.05,
+      "watch": 0.08,
+      "exit": 0.03,
+      "core": 0.09
+     }
+    },
+    "evidence": {
+     "type": "score",
+     "score": 1.96,
+     "confidence": 0.58,
+     "legend": {
+      "0": "no evidence",
+      "1": "weak",
+      "2": "moderate",
+      "3": "strong",
+      "4": "very strong"
+     },
+     "probabilities": {
+      "0": 0.01,
+      "1": 0.25,
+      "2": 0.52,
+      "3": 0.21,
+      "4": 0.01
+     }
+    },
+    "conc_risk": {
+     "type": "noul",
+     "noul": 0.42
+    },
+    "fee_headroom": {
+     "type": "noul",
+     "noul": 0.38
+    }
+   }
+  },
+  {
+   "name": "instant (bundled) graduations",
+   "state": {
+    "business": "Solana memecoin launchpad (pump.fun)",
+    "period_utc": "2026-08-31 to 2026-10-07",
+    "note": "failure_rate_pct is the share of launches flagged as a rug (drain or dev dump) within 300s. graduation_rate_pct counts true graduations; instant_graduations completed within 2s of launch and are bundles, not organic demand.",
+    "service_average_graduation_rate_pct": 2.06,
+    "service_average_rug_within_300s_pct": 57.7,
+    "segment": "instant (bundled) graduations",
+    "launches": 13796,
+    "share_of_all_graduations_pct": 57.98,
+    "median_seconds_to_graduation": 0.367
+   },
+   "answers": {
+    "tier": {
+     "type": "choice",
+     "choice": "fix",
+     "confidence": 0.84,
+     "probabilities": {
+      "watch": 0.02,
+      "fix": 0.87,
+      "core": 0.03,
+      "grow": 0.01,
+      "exit": 0.07
+     }
+    },
+    "evidence": {
+     "type": "score",
+     "score": 2.12,
+     "confidence": 0.56,
+     "legend": {
+      "0": "no evidence",
+      "1": "weak",
+      "2": "moderate",
+      "3": "strong",
+      "4": "very strong"
+     },
+     "probabilities": {
+      "0": 0.01,
+      "1": 0.19,
+      "2": 0.5,
+      "3": 0.28,
+      "4": 0.02
+     }
+    },
+    "conc_risk": {
+     "type": "noul",
+     "noul": 0.65
+    },
+    "fee_headroom": {
+     "type": "noul",
+     "noul": 0.43
+    }
+   }
+  },
+  {
+   "name": "organic graduations",
+   "state": {
+    "business": "Solana memecoin launchpad (pump.fun)",
+    "period_utc": "2026-08-31 to 2026-10-07",
+    "note": "failure_rate_pct is the share of launches flagged as a rug (drain or dev dump) within 300s. graduation_rate_pct counts true graduations; instant_graduations completed within 2s of launch and are bundles, not organic demand.",
+    "service_average_graduation_rate_pct": 2.06,
+    "service_average_rug_within_300s_pct": 57.7,
+    "segment": "organic graduations",
+    "launches": 9997,
+    "graduation_rate_pct": 0.865,
+    "median_seconds_to_graduation": 228.485
+   },
+   "answers": {
+    "tier": {
+     "type": "choice",
+     "choice": "fix",
+     "confidence": 0.97,
+     "probabilities": {
+      "watch": 0.01,
+      "exit": 0.01,
+      "grow": 0.0,
+      "fix": 0.98,
+      "core": 0.0
+     }
+    },
+    "evidence": {
+     "type": "score",
+     "score": 1.88,
+     "confidence": 0.54,
+     "legend": {
+      "0": "no evidence",
+      "1": "weak",
+      "2": "moderate",
+      "3": "strong",
+      "4": "very strong"
+     },
+     "probabilities": {
+      "0": 0.01,
+      "1": 0.32,
+      "2": 0.47,
+      "3": 0.19,
+      "4": 0.01
+     }
+    },
+    "conc_risk": {
+     "type": "noul",
+     "noul": 0.36
+    },
+    "fee_headroom": {
+     "type": "noul",
+     "noul": 0.37
+    }
+   }
+  },
+  {
+   "name": "ticker-copied launches",
+   "state": {
+    "business": "Solana memecoin launchpad (pump.fun)",
+    "period_utc": "2026-08-31 to 2026-10-07",
+    "note": "failure_rate_pct is the share of launches flagged as a rug (drain or dev dump) within 300s. graduation_rate_pct counts true graduations; instant_graduations completed within 2s of launch and are bundles, not organic demand.",
+    "service_average_graduation_rate_pct": 2.06,
+    "service_average_rug_within_300s_pct": 57.7,
+    "segment": "ticker-copied launches",
+    "launches": 357541,
+    "organic_graduates_sharing_ticker_pct": 98.63,
+    "median_other_mints_same_ticker": 26,
+    "distinct_tickers": 75289
+   },
+   "answers": {
+    "tier": {
+     "type": "choice",
+     "choice": "fix",
+     "confidence": 0.86,
+     "probabilities": {
+      "fix": 0.89,
+      "exit": 0.04,
+      "grow": 0.01,
+      "watch": 0.02,
+      "core": 0.04
+     }
+    },
+    "evidence": {
+     "type": "score",
+     "score": 2.37,
+     "confidence": 0.4,
+     "legend": {
+      "0": "no evidence",
+      "1": "weak",
+      "2": "moderate",
+      "3": "strong",
+      "4": "very strong"
+     },
+     "probabilities": {
+      "0": 0.01,
+      "1": 0.13,
+      "2": 0.39,
+      "3": 0.43,
+      "4": 0.04
+     }
+    },
+    "conc_risk": {
+     "type": "noul",
+     "noul": 0.4
+    },
+    "fee_headroom": {
+     "type": "noul",
+     "noul": 0.44
+    }
+   }
+  },
+  {
+   "name": "top-1000 creators (by launch count)",
+   "state": {
+    "business": "Solana memecoin launchpad (pump.fun)",
+    "period_utc": "2026-08-31 to 2026-10-07",
+    "note": "6.1% of creators produce half of all launches",
+    "service_average_graduation_rate_pct": 2.06,
+    "service_average_rug_within_300s_pct": 57.7,
+    "segment": "top-1000 creators (by launch count)",
+    "launches": 49547,
+    "creators": 1000,
+    "share_of_all_launches_pct": 35.55
+   },
+   "answers": {
+    "tier": {
+     "type": "choice",
+     "choice": "core",
+     "confidence": 0.28,
+     "probabilities": {
+      "core": 0.43,
+      "grow": 0.11,
+      "fix": 0.41,
+      "watch": 0.04,
+      "exit": 0.01
+     }
+    },
+    "evidence": {
+     "type": "score",
+     "score": 2.0,
+     "confidence": 0.62,
+     "legend": {
+      "0": "no evidence",
+      "1": "weak",
+      "2": "moderate",
+      "3": "strong",
+      "4": "very strong"
+     },
+     "probabilities": {
+      "0": 0.01,
+      "1": 0.22,
+      "2": 0.55,
+      "3": 0.21,
+      "4": 0.01
+     }
+    },
+    "conc_risk": {
+     "type": "noul",
+     "noul": 0.5
+    },
+    "fee_headroom": {
+     "type": "noul",
+     "noul": 0.48
+    }
+   }
+  }
+ ]
+}

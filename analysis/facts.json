@@ -1,0 +1,1732 @@
+{
+ "stats": {
+  "generated_at": "2026-10-08T00:58:01Z",
+  "coverage": {
+   "first_day": "2026-09-08",
+   "last_day": "2026-10-07",
+   "days": 30
+  },
+  "provenance": "Computed by loophole tape from its own independent capture of public on-chain events (pump.fun program events on Solana; Robinhood Chain pons v2 events), not resold data. Statistics, not advice.",
+  "label_check": {
+   "what": "our `graduated` label against the curve account's `complete` flag, on launches quoted in SOL that are not mayhem mode and whose curve account was read",
+   "days": 38,
+   "classic_sol_launches": 884804,
+   "chain_complete": 29431,
+   "labelled_graduated": 29027,
+   "both": 29022,
+   "recall": 0.9861,
+   "precision": 0.9998
+  },
+  "windows": {
+   "7d": {
+    "days": 7,
+    "from": "2026-10-01",
+    "to": "2026-10-07",
+    "launches": 358000,
+    "graduated": 6376,
+    "graduation_rate": 0.01781,
+    "instant_graduations": 3668,
+    "instant_share_of_graduations": 0.575282,
+    "organic_graduations": 2708,
+    "organic_graduation_rate": 0.007564,
+    "median_s_to_graduation_all": 0.046,
+    "median_s_to_graduation_organic": 343.818,
+    "rugged_within_300s": 202685,
+    "rug_within_300s_rate": 0.566159,
+    "creator_sold_within_60s": 172736,
+    "creator_sold_within_60s_share": 0.482503,
+    "by_kind": {
+     "classic": {
+      "launches": 234458,
+      "share_of_launches": 0.654911,
+      "graduated": 6370,
+      "graduation_rate": 0.027169,
+      "complete_on_chain": 6442,
+      "rugged_within_300s": 126248,
+      "rug_within_300s_rate": 0.538467,
+      "creator_sold_within_60s_share": 0.417056
+     },
+     "mayhem": {
+      "launches": 87229,
+      "share_of_launches": 0.243656,
+      "complete_on_chain": 1863,
+      "complete_share": 0.021358,
+      "graduated": 6,
+      "rugged_within_300s": 76437,
+      "rug_within_300s_rate": 0.87628,
+      "creator_sold_within_60s_share": 0.696282
+     },
+     "other_quote": {
+      "launches": 36306,
+      "share_of_launches": 0.101413,
+      "complete_on_chain": 386,
+      "complete_share": 0.010632,
+      "creator_sold_within_60s_share": 0.391616
+     },
+     "quote_not_established": {
+      "launches": 7
+     }
+    },
+    "ticker_copies": {
+     "organic_graduates_with_ticker": 2707,
+     "sharing_ticker": 2670,
+     "sharing_ticker_share": 0.986332,
+     "median_other_mints_same_ticker": 26,
+     "distinct_tickers": 75289,
+     "launches_with_ticker": 357541,
+     "top_launched_tickers": [
+      {
+       "ticker": "SI",
+       "withheld": false,
+       "launches": 2674,
+       "graduated": 36,
+       "organic_graduations": 22
+      },
+      {
+       "ticker": "PUMP",
+       "withheld": false,
+       "launches": 1814,
+       "graduated": 7,
+       "organic_graduations": 3
+      },
+      {
+       "ticker": "AI",
+       "withheld": false,
+       "launches": 1505,
+       "graduated": 22,
+       "organic_graduations": 21
+      },
+      {
+       "ticker": "ULTRA",
+       "withheld": false,
+       "launches": 1251,
+       "graduated": 0,
+       "organic_graduations": 0
+      },
+      {
+       "ticker": "CAT",
+       "withheld": false,
+       "launches": 1238,
+       "graduated": 4,
+       "organic_graduations": 4
+      },
+      {
+       "ticker": "SOL",
+       "withheld": false,
+       "launches": 1120,
+       "graduated": 3,
+       "organic_graduations": 0
+      },
+      {
+       "ticker": "TEST",
+       "withheld": false,
+       "launches": 989,
+       "graduated": 2,
+       "organic_graduations": 2
+      },
+      {
+       "ticker": "ELON",
+       "withheld": false,
+       "launches": 875,
+       "graduated": 85,
+       "organic_graduations": 7
+      },
+      {
+       "ticker": "INUX",
+       "withheld": false,
+       "launches": 820,
+       "graduated": 0,
+       "organic_graduations": 0
+      },
+      {
+       "ticker": "ANGEL",
+       "withheld": false,
+       "launches": 815,
+       "graduated": 0,
+       "organic_graduations": 0
+      }
+     ]
+    }
+   },
+   "30d": {
+    "days": 30,
+    "from": "2026-09-08",
+    "to": "2026-10-07",
+    "launches": 1156058,
+    "graduated": 23793,
+    "graduation_rate": 0.020581,
+    "instant_graduations": 13796,
+    "instant_share_of_graduations": 0.579834,
+    "organic_graduations": 9997,
+    "organic_graduation_rate": 0.008647,
+    "median_s_to_graduation_all": 0.367,
+    "median_s_to_graduation_organic": 228.485,
+    "rugged_within_300s": 667344,
+    "rug_within_300s_rate": 0.577258,
+    "creator_sold_within_60s": 584879,
+    "creator_sold_within_60s_share": 0.505925,
+    "by_kind": {
+     "classic": {
+      "launches": 723695,
+      "share_of_launches": 0.626002,
+      "graduated": 23741,
+      "graduation_rate": 0.032805,
+      "complete_on_chain": 23973,
+      "rugged_within_300s": 401208,
+      "rug_within_300s_rate": 0.554388,
+      "creator_sold_within_60s_share": 0.426735
+     },
+     "mayhem": {
+      "launches": 302812,
+      "share_of_launches": 0.261935,
+      "complete_on_chain": 8605,
+      "complete_share": 0.028417,
+      "graduated": 52,
+      "rugged_within_300s": 266136,
+      "rug_within_300s_rate": 0.878882,
+      "creator_sold_within_60s_share": 0.69102
+     },
+     "other_quote": {
+      "launches": 129531,
+      "share_of_launches": 0.112045,
+      "complete_on_chain": 2056,
+      "complete_share": 0.015873,
+      "creator_sold_within_60s_share": 0.515738
+     },
+     "quote_not_established": {
+      "launches": 20
+     }
+    },
+    "ticker_copies": null
+   }
+  },
+  "pools": {
+   "from": "2026-10-01",
+   "to": "2026-10-07",
+   "days_with_pools": 7,
+   "full_pools": 6545,
+   "lost_90pct_in_30m": 4081,
+   "share_lost_90pct_in_30m": 0.623529,
+   "median_s_to_collapse": 475.3,
+   "survivors_ending_above_open_share": 0.646916,
+   "days": [
+    {
+     "day": "2026-10-07",
+     "full_pools": 929,
+     "lost_90pct_in_30m": 578,
+     "share_lost_90pct_in_30m": 0.622174,
+     "median_s_to_collapse": 491.5,
+     "survivors_ending_above_open_share": 0.663818
+    },
+    {
+     "day": "2026-10-06",
+     "full_pools": 941,
+     "lost_90pct_in_30m": 573,
+     "share_lost_90pct_in_30m": 0.608927,
+     "median_s_to_collapse": 485.5,
+     "survivors_ending_above_open_share": 0.600543
+    },
+    {
+     "day": "2026-10-05",
+     "full_pools": 851,
+     "lost_90pct_in_30m": 520,
+     "share_lost_90pct_in_30m": 0.611046,
+     "median_s_to_collapse": 464.45,
+     "survivors_ending_above_open_share": 0.628399
+    },
+    {
+     "day": "2026-10-04",
+     "full_pools": 963,
+     "lost_90pct_in_30m": 613,
+     "share_lost_90pct_in_30m": 0.636552,
+     "median_s_to_collapse": 495.2,
+     "survivors_ending_above_open_share": 0.631429
+    },
+    {
+     "day": "2026-10-03",
+     "full_pools": 968,
+     "lost_90pct_in_30m": 623,
+     "share_lost_90pct_in_30m": 0.643595,
+     "median_s_to_collapse": 461.3,
+     "survivors_ending_above_open_share": 0.643478
+    },
+    {
+     "day": "2026-10-02",
+     "full_pools": 915,
+     "lost_90pct_in_30m": 543,
+     "share_lost_90pct_in_30m": 0.593443,
+     "median_s_to_collapse": 450.7,
+     "survivors_ending_above_open_share": 0.696237
+    },
+    {
+     "day": "2026-10-01",
+     "full_pools": 978,
+     "lost_90pct_in_30m": 631,
+     "share_lost_90pct_in_30m": 0.645194,
+     "median_s_to_collapse": 478.9,
+     "survivors_ending_above_open_share": 0.662824
+    }
+   ]
+  },
+  "definitions": {
+   "launches": "pump.fun mints created that UTC day and seen by our capture",
+   "graduated": "true graduation under our label rules: the bonding curve completed, or a migration was seen while the curve was near completion; fake pools do not count",
+   "instant_graduations": "true graduations whose migration was seen within 2 s of launch: the mint was created, filled and migrated in one bundle, before anyone outside it could trade",
+   "organic_graduations": "every other true graduation (including the few with no migration timing)",
+   "median_s_to_graduation_all": "median seconds from launch to the first migration sighting over true graduations with timing",
+   "median_s_to_graduation_organic": "the same median over organic graduations",
+   "rug_within_300s_rate": "share of launches our rug classification flagged within 300 s of launch (drain from a meaningful peak)",
+   "creator_sold_within_60s_share": "share of launches whose creator's first sell came within 60 s of launch",
+   "ticker_copies": "7-day window, tickers compared case-insensitively: for each organic graduate, the number of other mints launched in the same 7 days with the same ticker; top_launched_tickers = the most launched tickers of those 7 days",
+   "settling": "the dataset export rebuilds its last three days nightly because outcomes settle late; those numbers can still change",
+   "pools": "the PumpSwap pools our capture saw open that UTC day with 50 SOL or more, five or more trades in their first 30 minutes and no gap in our reading of them (recorded by chainstack/pool_outcomes.py): lost_90pct_in_30m = the pool price at the last trade inside those 30 minutes was at or below a tenth of the price at the first trade; median_s_to_collapse = seconds from the pool's opening to the first price at or below that tenth; observations of what happened, not a forecast",
+   "by_kind": "the same counts per kind of launch, read from each launch's own curve account on the chain. classic = quoted in SOL and not mayhem mode: the kind our graduation and rug labels fully describe, and the denominator to use for a graduation rate. mayhem = a SOL-quoted mayhem-mode launch (an opt-in setting in which pump.fun's own agent may trade the coin): a few percent of them are marked complete on the chain with reserves far below the 85 SOL of a graduation (complete_on_chain), which is not a graduation under our rules. other_quote = quoted in another asset, mayhem mode or not (tokenized stocks, PUMP, USDC, PYUSD, other coins; since 2026-09-10): measured in SOL our labels do not apply, so complete_on_chain is the one outcome given. The headline rates above divide by ALL launches, as they always have",
+   "label_check": "our graduated label against the curve account's own `complete` flag on classic launches (see /v1/datasets/schema/pumpfun_launches)"
+  },
+  "daily": [
+   {
+    "day": "2026-10-07",
+    "settling": true,
+    "launches": 55702,
+    "graduated": 883,
+    "graduation_rate": 0.015852,
+    "instant_share_of_graduations": 0.604757,
+    "organic_graduation_rate": 0.006265,
+    "rug_within_300s_rate": 0.53718,
+    "creator_sold_within_60s_share": 0.483932
+   },
+   {
+    "day": "2026-10-06",
+    "settling": true,
+    "launches": 53155,
+    "graduated": 896,
+    "graduation_rate": 0.016856,
+    "instant_share_of_graduations": 0.608259,
+    "organic_graduation_rate": 0.006603,
+    "rug_within_300s_rate": 0.53312,
+    "creator_sold_within_60s_share": 0.465808
+   },
+   {
+    "day": "2026-10-05",
+    "settling": true,
+    "launches": 49337,
+    "graduated": 812,
+    "graduation_rate": 0.016458,
+    "instant_share_of_graduations": 0.536946,
+    "organic_graduation_rate": 0.007621,
+    "rug_within_300s_rate": 0.525893,
+    "creator_sold_within_60s_share": 0.442305
+   },
+   {
+    "day": "2026-10-04",
+    "settling": false,
+    "launches": 50688,
+    "graduated": 946,
+    "graduation_rate": 0.018663,
+    "instant_share_of_graduations": 0.557082,
+    "organic_graduation_rate": 0.008266,
+    "rug_within_300s_rate": 0.559975,
+    "creator_sold_within_60s_share": 0.458629
+   },
+   {
+    "day": "2026-10-03",
+    "settling": false,
+    "launches": 52123,
+    "graduated": 944,
+    "graduation_rate": 0.018111,
+    "instant_share_of_graduations": 0.5625,
+    "organic_graduation_rate": 0.007924,
+    "rug_within_300s_rate": 0.570612,
+    "creator_sold_within_60s_share": 0.468929
+   },
+   {
+    "day": "2026-10-02",
+    "settling": false,
+    "launches": 46645,
+    "graduated": 921,
+    "graduation_rate": 0.019745,
+    "instant_share_of_graduations": 0.555917,
+    "organic_graduation_rate": 0.008768,
+    "rug_within_300s_rate": 0.613721,
+    "creator_sold_within_60s_share": 0.510773
+   },
+   {
+    "day": "2026-10-01",
+    "settling": false,
+    "launches": 50350,
+    "graduated": 974,
+    "graduation_rate": 0.019345,
+    "instant_share_of_graduations": 0.598563,
+    "organic_graduation_rate": 0.007766,
+    "rug_within_300s_rate": 0.630109,
+    "creator_sold_within_60s_share": 0.549831
+   },
+   {
+    "day": "2026-09-30",
+    "settling": false,
+    "launches": 49042,
+    "graduated": 918,
+    "graduation_rate": 0.018719,
+    "instant_share_of_graduations": 0.617647,
+    "organic_graduation_rate": 0.007157,
+    "rug_within_300s_rate": 0.597957,
+    "creator_sold_within_60s_share": 0.501346
+   },
+   {
+    "day": "2026-09-29",
+    "settling": false,
+    "launches": 43327,
+    "graduated": 817,
+    "graduation_rate": 0.018857,
+    "instant_share_of_graduations": 0.548348,
+    "organic_graduation_rate": 0.008517,
+    "rug_within_300s_rate": 0.60565,
+    "creator_sold_within_60s_share": 0.510698
+   },
+   {
+    "day": "2026-09-28",
+    "settling": false,
+    "launches": 42266,
+    "graduated": 908,
+    "graduation_rate": 0.021483,
+    "instant_share_of_graduations": 0.431718,
+    "organic_graduation_rate": 0.012208,
+    "rug_within_300s_rate": 0.608645,
+    "creator_sold_within_60s_share": 0.509464
+   },
+   {
+    "day": "2026-09-27",
+    "settling": false,
+    "launches": 37908,
+    "graduated": 723,
+    "graduation_rate": 0.019072,
+    "instant_share_of_graduations": 0.426003,
+    "organic_graduation_rate": 0.010948,
+    "rug_within_300s_rate": 0.64245,
+    "creator_sold_within_60s_share": 0.530073
+   },
+   {
+    "day": "2026-09-26",
+    "settling": false,
+    "launches": 43058,
+    "graduated": 829,
+    "graduation_rate": 0.019253,
+    "instant_share_of_graduations": 0.349819,
+    "organic_graduation_rate": 0.012518,
+    "rug_within_300s_rate": 0.621348,
+    "creator_sold_within_60s_share": 0.534953
+   },
+   {
+    "day": "2026-09-25",
+    "settling": false,
+    "launches": 34576,
+    "graduated": 749,
+    "graduation_rate": 0.021662,
+    "instant_share_of_graduations": 0.492657,
+    "organic_graduation_rate": 0.01099,
+    "rug_within_300s_rate": 0.582311,
+    "creator_sold_within_60s_share": 0.503644
+   },
+   {
+    "day": "2026-09-24",
+    "settling": false,
+    "launches": 34510,
+    "graduated": 813,
+    "graduation_rate": 0.023558,
+    "instant_share_of_graduations": 0.483395,
+    "organic_graduation_rate": 0.01217,
+    "rug_within_300s_rate": 0.594465,
+    "creator_sold_within_60s_share": 0.498928
+   },
+   {
+    "day": "2026-09-23",
+    "settling": false,
+    "launches": 34644,
+    "graduated": 779,
+    "graduation_rate": 0.022486,
+    "instant_share_of_graduations": 0.518614,
+    "organic_graduation_rate": 0.010824,
+    "rug_within_300s_rate": 0.596092,
+    "creator_sold_within_60s_share": 0.503839
+   },
+   {
+    "day": "2026-09-22",
+    "settling": false,
+    "launches": 32988,
+    "graduated": 814,
+    "graduation_rate": 0.024676,
+    "instant_share_of_graduations": 0.509828,
+    "organic_graduation_rate": 0.012095,
+    "rug_within_300s_rate": 0.57145,
+    "creator_sold_within_60s_share": 0.501273
+   },
+   {
+    "day": "2026-09-21",
+    "settling": false,
+    "launches": 34565,
+    "graduated": 794,
+    "graduation_rate": 0.022971,
+    "instant_share_of_graduations": 0.5,
+    "organic_graduation_rate": 0.011486,
+    "rug_within_300s_rate": 0.567568,
+    "creator_sold_within_60s_share": 0.512194
+   },
+   {
+    "day": "2026-09-20",
+    "settling": false,
+    "launches": 30672,
+    "graduated": 812,
+    "graduation_rate": 0.026474,
+    "instant_share_of_graduations": 0.571429,
+    "organic_graduation_rate": 0.011346,
+    "rug_within_300s_rate": 0.551578,
+    "creator_sold_within_60s_share": 0.489567
+   },
+   {
+    "day": "2026-09-19",
+    "settling": false,
+    "launches": 31901,
+    "graduated": 760,
+    "graduation_rate": 0.023824,
+    "instant_share_of_graduations": 0.582895,
+    "organic_graduation_rate": 0.009937,
+    "rug_within_300s_rate": 0.544622,
+    "creator_sold_within_60s_share": 0.49221
+   },
+   {
+    "day": "2026-09-18",
+    "settling": false,
+    "launches": 36003,
+    "graduated": 787,
+    "graduation_rate": 0.021859,
+    "instant_share_of_graduations": 0.557814,
+    "organic_graduation_rate": 0.009666,
+    "rug_within_300s_rate": 0.57323,
+    "creator_sold_within_60s_share": 0.543427
+   },
+   {
+    "day": "2026-09-17",
+    "settling": false,
+    "launches": 38884,
+    "graduated": 806,
+    "graduation_rate": 0.020728,
+    "instant_share_of_graduations": 0.595533,
+    "organic_graduation_rate": 0.008384,
+    "rug_within_300s_rate": 0.60966,
+    "creator_sold_within_60s_share": 0.552309
+   },
+   {
+    "day": "2026-09-16",
+    "settling": false,
+    "launches": 33867,
+    "graduated": 759,
+    "graduation_rate": 0.022411,
+    "instant_share_of_graduations": 0.55863,
+    "organic_graduation_rate": 0.009892,
+    "rug_within_300s_rate": 0.641244,
+    "creator_sold_within_60s_share": 0.574305
+   },
+   {
+    "day": "2026-09-15",
+    "settling": false,
+    "launches": 34272,
+    "graduated": 705,
+    "graduation_rate": 0.020571,
+    "instant_share_of_graduations": 0.614184,
+    "organic_graduation_rate": 0.007937,
+    "rug_within_300s_rate": 0.567869,
+    "creator_sold_within_60s_share": 0.513626
+   },
+   {
+    "day": "2026-09-14",
+    "settling": false,
+    "launches": 29760,
+    "graduated": 653,
+    "graduation_rate": 0.021942,
+    "instant_share_of_graduations": 0.748851,
+    "organic_graduation_rate": 0.005511,
+    "rug_within_300s_rate": 0.509073,
+    "creator_sold_within_60s_share": 0.538575
+   },
+   {
+    "day": "2026-09-13",
+    "settling": false,
+    "launches": 24806,
+    "graduated": 606,
+    "graduation_rate": 0.02443,
+    "instant_share_of_graduations": 0.782178,
+    "organic_graduation_rate": 0.005321,
+    "rug_within_300s_rate": 0.451826,
+    "creator_sold_within_60s_share": 0.452229
+   },
+   {
+    "day": "2026-09-12",
+    "settling": false,
+    "launches": 28257,
+    "graduated": 621,
+    "graduation_rate": 0.021977,
+    "instant_share_of_graduations": 0.792271,
+    "organic_graduation_rate": 0.004565,
+    "rug_within_300s_rate": 0.494178,
+    "creator_sold_within_60s_share": 0.521358
+   },
+   {
+    "day": "2026-09-11",
+    "settling": false,
+    "launches": 28530,
+    "graduated": 609,
+    "graduation_rate": 0.021346,
+    "instant_share_of_graduations": 0.763547,
+    "organic_graduation_rate": 0.005047,
+    "rug_within_300s_rate": 0.599474,
+    "creator_sold_within_60s_share": 0.510655
+   },
+   {
+    "day": "2026-09-10",
+    "settling": false,
+    "launches": 31196,
+    "graduated": 683,
+    "graduation_rate": 0.021894,
+    "instant_share_of_graduations": 0.732064,
+    "organic_graduation_rate": 0.005866,
+    "rug_within_300s_rate": 0.581677,
+    "creator_sold_within_60s_share": 0.523977
+   },
+   {
+    "day": "2026-09-09",
+    "settling": false,
+    "launches": 33580,
+    "graduated": 752,
+    "graduation_rate": 0.022394,
+    "instant_share_of_graduations": 0.732713,
+    "organic_graduation_rate": 0.005986,
+    "rug_within_300s_rate": 0.554407,
+    "creator_sold_within_60s_share": 0.518076
+   },
+   {
+    "day": "2026-09-08",
+    "settling": false,
+    "launches": 29446,
+    "graduated": 720,
+    "graduation_rate": 0.024452,
+    "instant_share_of_graduations": 0.681944,
+    "organic_graduation_rate": 0.007777,
+    "rug_within_300s_rate": 0.627861,
+    "creator_sold_within_60s_share": 0.52092
+   }
+  ],
+  "trend": {
+   "order": "ascending",
+   "first_week": "2026-09-08",
+   "last_week": "2026-10-07",
+   "weekly": [
+    {
+     "from": "2026-09-08",
+     "to": "2026-09-14",
+     "launches": 29367.857143,
+     "graduation_rate": 0.022634,
+     "organic_graduation_rate": 0.005725,
+     "instant_share_of_graduations": 0.747653,
+     "rug_within_300s_rate": 0.545499,
+     "creator_sold_within_60s_share": 0.512256
+    },
+    {
+     "from": "2026-09-15",
+     "to": "2026-09-21",
+     "launches": 34309.142857,
+     "graduation_rate": 0.022691,
+     "organic_graduation_rate": 0.009807,
+     "instant_share_of_graduations": 0.568641,
+     "rug_within_300s_rate": 0.579396,
+     "creator_sold_within_60s_share": 0.525377
+    },
+    {
+     "from": "2026-09-22",
+     "to": "2026-09-28",
+     "launches": 37135.714286,
+     "graduation_rate": 0.021741,
+     "organic_graduation_rate": 0.011679,
+     "instant_share_of_graduations": 0.458862,
+     "rug_within_300s_rate": 0.602394,
+     "creator_sold_within_60s_share": 0.511739
+    },
+    {
+     "from": "2026-09-29",
+     "to": "2026-10-05",
+     "launches": 48787.428571,
+     "graduation_rate": 0.018557,
+     "organic_graduation_rate": 0.008003,
+     "instant_share_of_graduations": 0.568143,
+     "rug_within_300s_rate": 0.586274,
+     "creator_sold_within_60s_share": 0.491787
+    }
+   ],
+   "change": {
+    "launches_pct": 74.1,
+    "graduation_rate_pp": -0.477,
+    "organic_graduation_rate_pp": 0.188,
+    "instant_share_pp": -17.28
+   }
+  }
+ },
+ "defillama": {
+  "launchpad": {
+   "fees": {
+    "total24h": 2382659,
+    "total7d": 16956994,
+    "total30d": 55321530,
+    "total1y": 417506425,
+    "totalAllTime": 1267920088,
+    "chart": [
+     [
+      1787529600,
+      1817180
+     ],
+     [
+      1787616000,
+      1953165
+     ],
+     [
+      1787702400,
+      2172629
+     ],
+     [
+      1787788800,
+      2649969
+     ],
+     [
+      1787875200,
+      2162156
+     ],
+     [
+      1787961600,
+      1938968
+     ],
+     [
+      1788048000,
+      1609576
+     ],
+     [
+      1788134400,
+      1721135
+     ],
+     [
+      1788220800,
+      1739933
+     ],
+     [
+      1788307200,
+      1463779
+     ],
+     [
+      1788393600,
+      1309539
+     ],
+     [
+      1788480000,
+      928134
+     ],
+     [
+      1788566400,
+      679806
+     ],
+     [
+      1788652800,
+      695147
+     ],
+     [
+      1788739200,
+      1225798
+     ],
+     [
+      1788825600,
+      1272930
+     ],
+     [
+      1788912000,
+      1412179
+     ],
+     [
+      1788998400,
+      1135509
+     ],
+     [
+      1789084800,
+      950515
+     ],
+     [
+      1789171200,
+      1400019
+     ],
+     [
+      1789257600,
+      1552550
+     ],
+     [
+      1789344000,
+      1707784
+     ],
+     [
+      1789430400,
+      1594991
+     ],
+     [
+      1789516800,
+      1465204
+     ],
+     [
+      1789603200,
+      1646052
+     ],
+     [
+      1789689600,
+      1666140
+     ],
+     [
+      1789776000,
+      1475148
+     ],
+     [
+      1789862400,
+      1437832
+     ],
+     [
+      1789948800,
+      1729657
+     ],
+     [
+      1790035200,
+      1746896
+     ],
+     [
+      1790121600,
+      1585924
+     ],
+     [
+      1790208000,
+      1650379
+     ],
+     [
+      1790294400,
+      1724583
+     ],
+     [
+      1790380800,
+      2699475
+     ],
+     [
+      1790467200,
+      2112093
+     ],
+     [
+      1790553600,
+      2229995
+     ],
+     [
+      1790640000,
+      2024455
+     ],
+     [
+      1790726400,
+      2144226
+     ],
+     [
+      1790812800,
+      2400773
+     ],
+     [
+      1790899200,
+      2365228
+     ],
+     [
+      1790985600,
+      2306954
+     ],
+     [
+      1791072000,
+      2399727
+     ],
+     [
+      1791158400,
+      2585425
+     ],
+     [
+      1791244800,
+      2516228
+     ],
+     [
+      1791331200,
+      2382659
+     ]
+    ]
+   },
+   "revenue": {
+    "total24h": 1720253,
+    "total7d": 12413285,
+    "total30d": 39342310,
+    "total1y": 318132562,
+    "totalAllTime": 1154748119,
+    "chart": [
+     [
+      1787529600,
+      1387170
+     ],
+     [
+      1787616000,
+      1491702
+     ],
+     [
+      1787702400,
+      1657742
+     ],
+     [
+      1787788800,
+      2021808
+     ],
+     [
+      1787875200,
+      1650560
+     ],
+     [
+      1787961600,
+      1481480
+     ],
+     [
+      1788048000,
+      1226612
+     ],
+     [
+      1788134400,
+      1311472
+     ],
+     [
+      1788220800,
+      1326114
+     ],
+     [
+      1788307200,
+      1115622
+     ],
+     [
+      1788393600,
+      998302
+     ],
+     [
+      1788480000,
+      708133
+     ],
+     [
+      1788566400,
+      518482
+     ],
+     [
+      1788652800,
+      530756
+     ],
+     [
+      1788739200,
+      934270
+     ],
+     [
+      1788825600,
+      970459
+     ],
+     [
+      1788912000,
+      1070437
+     ],
+     [
+      1788998400,
+      861628
+     ],
+     [
+      1789084800,
+      720556
+     ],
+     [
+      1789171200,
+      786033
+     ],
+     [
+      1789257600,
+      771378
+     ],
+     [
+      1789344000,
+      919906
+     ],
+     [
+      1789430400,
+      1044296
+     ],
+     [
+      1789516800,
+      1049694
+     ],
+     [
+      1789603200,
+      1174180
+     ],
+     [
+      1789689600,
+      1168170
+     ],
+     [
+      1789776000,
+      1053951
+     ],
+     [
+      1789862400,
+      1038074
+     ],
+     [
+      1789948800,
+      1254867
+     ],
+     [
+      1790035200,
+      1251723
+     ],
+     [
+      1790121600,
+      1149917
+     ],
+     [
+      1790208000,
+      1206943
+     ],
+     [
+      1790294400,
+      1233641
+     ],
+     [
+      1790380800,
+      2001071
+     ],
+     [
+      1790467200,
+      1555190
+     ],
+     [
+      1790553600,
+      1616987
+     ],
+     [
+      1790640000,
+      1461625
+     ],
+     [
+      1790726400,
+      1568299
+     ],
+     [
+      1790812800,
+      1748972
+     ],
+     [
+      1790899200,
+      1712663
+     ],
+     [
+      1790985600,
+      1711103
+     ],
+     [
+      1791072000,
+      1780189
+     ],
+     [
+      1791158400,
+      1887798
+     ],
+     [
+      1791244800,
+      1852307
+     ],
+     [
+      1791331200,
+      1720253
+     ]
+    ]
+   },
+   "volume": {
+    "total24h": 184978761,
+    "total30d": 3652993707,
+    "totalAllTime": 100093935685
+   }
+  },
+  "pumpswap": {
+   "fees": {
+    "total24h": 4249304,
+    "total7d": 31860648,
+    "total30d": 116303311,
+    "total1y": 701858934,
+    "totalAllTime": 934456470,
+    "chart": [
+     [
+      1787529600,
+      4027948
+     ],
+     [
+      1787616000,
+      3808740
+     ],
+     [
+      1787702400,
+      4157425
+     ],
+     [
+      1787788800,
+      4659614
+     ],
+     [
+      1787875200,
+      4112126
+     ],
+     [
+      1787961600,
+      3442690
+     ],
+     [
+      1788048000,
+      2967692
+     ],
+     [
+      1788134400,
+      3727992
+     ],
+     [
+      1788220800,
+      3435004
+     ],
+     [
+      1788307200,
+      2717479
+     ],
+     [
+      1788393600,
+      3088240
+     ],
+     [
+      1788480000,
+      2841847
+     ],
+     [
+      1788566400,
+      2677316
+     ],
+     [
+      1788652800,
+      3135913
+     ],
+     [
+      1788739200,
+      3758624
+     ],
+     [
+      1788825600,
+      3499834
+     ],
+     [
+      1788912000,
+      3362018
+     ],
+     [
+      1788998400,
+      2786301
+     ],
+     [
+      1789084800,
+      2852672
+     ],
+     [
+      1789171200,
+      3337980
+     ],
+     [
+      1789257600,
+      3191747
+     ],
+     [
+      1789344000,
+      3258389
+     ],
+     [
+      1789430400,
+      3201526
+     ],
+     [
+      1789516800,
+      3435005
+     ],
+     [
+      1789603200,
+      3813406
+     ],
+     [
+      1789689600,
+      3750927
+     ],
+     [
+      1789776000,
+      3451827
+     ],
+     [
+      1789862400,
+      3245351
+     ],
+     [
+      1789948800,
+      3357626
+     ],
+     [
+      1790035200,
+      3398293
+     ],
+     [
+      1790121600,
+      3497406
+     ],
+     [
+      1790208000,
+      3389963
+     ],
+     [
+      1790294400,
+      3844327
+     ],
+     [
+      1790380800,
+      5591392
+     ],
+     [
+      1790467200,
+      5069717
+     ],
+     [
+      1790553600,
+      5503937
+     ],
+     [
+      1790640000,
+      3708908
+     ],
+     [
+      1790726400,
+      3894111
+     ],
+     [
+      1790812800,
+      4528848
+     ],
+     [
+      1790899200,
+      4740429
+     ],
+     [
+      1790985600,
+      4258063
+     ],
+     [
+      1791072000,
+      5161069
+     ],
+     [
+      1791158400,
+      4447961
+     ],
+     [
+      1791244800,
+      4474974
+     ],
+     [
+      1791331200,
+      4249304
+     ]
+    ]
+   },
+   "revenue": {
+    "total24h": 578071,
+    "total7d": 4423453,
+    "total30d": 15207018,
+    "total1y": 120887181,
+    "totalAllTime": 162172003,
+    "chart": [
+     [
+      1787529600,
+      646829
+     ],
+     [
+      1787616000,
+      673847
+     ],
+     [
+      1787702400,
+      770462
+     ],
+     [
+      1787788800,
+      932429
+     ],
+     [
+      1787875200,
+      778377
+     ],
+     [
+      1787961600,
+      626160
+     ],
+     [
+      1788048000,
+      530832
+     ],
+     [
+      1788134400,
+      608917
+     ],
+     [
+      1788220800,
+      568106
+     ],
+     [
+      1788307200,
+      430800
+     ],
+     [
+      1788393600,
+      412431
+     ],
+     [
+      1788480000,
+      348434
+     ],
+     [
+      1788566400,
+      310596
+     ],
+     [
+      1788652800,
+      355672
+     ],
+     [
+      1788739200,
+      473986
+     ],
+     [
+      1788825600,
+      438453
+     ],
+     [
+      1788912000,
+      441521
+     ],
+     [
+      1788998400,
+      365710
+     ],
+     [
+      1789084800,
+      326483
+     ],
+     [
+      1789171200,
+      326504
+     ],
+     [
+      1789257600,
+      332589
+     ],
+     [
+      1789344000,
+      360270
+     ],
+     [
+      1789430400,
+      387600
+     ],
+     [
+      1789516800,
+      469132
+     ],
+     [
+      1789603200,
+      498207
+     ],
+     [
+      1789689600,
+      503625
+     ],
+     [
+      1789776000,
+      443339
+     ],
+     [
+      1789862400,
+      429775
+     ],
+     [
+      1789948800,
+      475974
+     ],
+     [
+      1790035200,
+      451136
+     ],
+     [
+      1790121600,
+      457745
+     ],
+     [
+      1790208000,
+      443953
+     ],
+     [
+      1790294400,
+      476303
+     ],
+     [
+      1790380800,
+      806697
+     ],
+     [
+      1790467200,
+      624093
+     ],
+     [
+      1790553600,
+      645462
+     ],
+     [
+      1790640000,
+      530332
+     ],
+     [
+      1790726400,
+      548662
+     ],
+     [
+      1790812800,
+      641867
+     ],
+     [
+      1790899200,
+      637362
+     ],
+     [
+      1790985600,
+      604988
+     ],
+     [
+      1791072000,
+      713328
+     ],
+     [
+      1791158400,
+      643493
+     ],
+     [
+      1791244800,
+      604344
+     ],
+     [
+      1791331200,
+      578071
+     ]
+    ]
+   },
+   "volume": {
+    "total24h": 280510285,
+    "total30d": 11706095821,
+    "totalAllTime": 286138357128
+   }
+  },
+  "combined_30d": {
+   "volume": 15359089528,
+   "fees": 171624841,
+   "revenue": 54549328,
+   "implied_blended_fee_rate": 0.01117
+  }
+ },
+ "revenue": {
+  "sol_usd": 114.94,
+  "sol_usd_source": "CoinGecko 2026-10-08",
+  "peak_rs_sum_sol": {
+   "launches": 1229577.6043468101,
+   "legacy": 4639761.3292291
+  },
+  "peak_rs_sum_sol_total": 5869338.93357591,
+  "days_covered": 32,
+  "fee_gross": 0.0125,
+  "fee_protocol": 0.0095,
+  "volume_floor_usd": 674621817,
+  "fee_floor_gross_usd": 8432773,
+  "fee_floor_protocol_usd": 6408907,
+  "note": "下界 = 费率 × Σ peak_rs；只含曲线的**买入净流入**，不含卖出侧、不含同一笔钱反复买卖的周转、不含毕业后的 PumpSwap"
+ },
+ "hf": {
+  "rows": {
+   "launches": 222893,
+   "legacy": 859208,
+   "total": 1082101
+  },
+  "columns": 45,
+  "kind_share": {
+   "launches": {
+    "classic": 62.53,
+    "mayhem_sol": 27.09,
+    "other_quote": 10.38
+   },
+   "legacy": {
+    "classic": 63.05,
+    "mayhem_sol": 26.86,
+    "other_quote": 10.09
+   }
+  },
+  "outcomes": {
+   "launches": {
+    "classic_launches": 139375,
+    "graduated": 4332,
+    "graduation_rate_pct": 3.1082,
+    "rug_resolved_n": 136521,
+    "rugged_pct_of_resolved": 65.4,
+    "rugged_not_graduated_n": 88825,
+    "unresolved_pct": 2.05,
+    "branch": {
+     "NaN": 50086,
+     "drain": 45952,
+     "dev_dump_or_recovered": 43337
+    }
+   },
+   "legacy": {
+    "classic_launches": 541752,
+    "graduated": 19298,
+    "graduation_rate_pct": 3.5621,
+    "rug_resolved_n": 507219,
+    "rugged_pct_of_resolved": 60.39,
+    "rugged_not_graduated_n": 304453,
+    "unresolved_pct": 6.37,
+    "branch": {
+     "NaN": 235433,
+     "drain": 158264,
+     "dev_dump_or_recovered": 148055
+    }
+   }
+  },
+  "peak_rs": {
+   "launches": {
+    "n": 136521,
+    "p25": 0.158,
+    "p50": 2.008,
+    "p75": 9.858,
+    "p90": 22.919,
+    "p95": 42.774,
+    "p99": 85.005,
+    "max": 85.012,
+    "above_cap_n": 0
+   },
+   "legacy": {
+    "n": 507219,
+    "p25": 0.049,
+    "p50": 1.298,
+    "p75": 9.4,
+    "p90": 23.86,
+    "p95": 51.521,
+    "p99": 85.005,
+    "max": 85.187,
+    "above_cap_n": 1
+   }
+  },
+  "creator_concentration": {
+   "launches": {
+    "creators": 59631,
+    "launches": 139375,
+    "per_creator_mean": 2.34,
+    "top1": 2627,
+    "top1_share_pct": 1.88,
+    "top10_share_pct": 4.96,
+    "top100_share_pct": 15.41,
+    "top1000_share_pct": 35.55,
+    "creators_for_half": 3651
+   },
+   "legacy": {
+    "creators": 168214,
+    "launches": 541752,
+    "per_creator_mean": 3.22,
+    "top1": 4891,
+    "top1_share_pct": 0.9,
+    "top10_share_pct": 3.46,
+    "top100_share_pct": 13.8,
+    "top1000_share_pct": 35.3,
+    "creators_for_half": 3977
+   }
+  },
+  "veteran": {
+   "sampled_rows": 130016,
+   "sampled_share_of_classic_pct": 93.29,
+   "sampled_graduation_rate_pct": 3.117,
+   "sampled_rug_rate_pct": 65.33,
+   "unsampled_rows": 9359,
+   "unsampled_graduation_rate_pct": 2.992,
+   "unsampled_rug_rate_pct": 66.47,
+   "rep_rows": 129995,
+   "by_prior_launches": {
+    "0": {
+     "n": 48046,
+     "graduation_rate_pct": 6.82,
+     "rug_rate_pct": 69.2,
+     "mean_prior_rugs": null,
+     "mean_dev_share_pct": 5.52,
+     "mean_bundle_wallets": 2.67
+    },
+    "1": {
+     "n": 9017,
+     "graduation_rate_pct": 1.63,
+     "rug_rate_pct": 52.91,
+     "mean_prior_rugs": 0.694,
+     "mean_dev_share_pct": 2.69,
+     "mean_bundle_wallets": 1.2
+    },
+    "2-4": {
+     "n": 11630,
+     "graduation_rate_pct": 0.81,
+     "rug_rate_pct": 53.05,
+     "mean_prior_rugs": 0.662,
+     "mean_dev_share_pct": 2.37,
+     "mean_bundle_wallets": 1.02
+    },
+    "5-19": {
+     "n": 15599,
+     "graduation_rate_pct": 0.69,
+     "rug_rate_pct": 60.3,
+     "mean_prior_rugs": 0.668,
+     "mean_dev_share_pct": 2.83,
+     "mean_bundle_wallets": 1.06
+    },
+    "20+": {
+     "n": 45703,
+     "graduation_rate_pct": 0.94,
+     "rug_rate_pct": 68.56,
+     "mean_prior_rugs": 0.689,
+     "mean_dev_share_pct": 5.77,
+     "mean_bundle_wallets": 1.96
+    }
+   }
+  },
+  "tickers": {
+   "unique": 43212,
+   "launches": 139147,
+   "mean_per_ticker": 3.22,
+   "top": [
+    {
+     "ticker": "SI",
+     "n": 2126,
+     "graduated": 64,
+     "rug_rate_pct": 60.8
+    },
+    {
+     "ticker": "AI",
+     "n": 670,
+     "graduated": 16,
+     "rug_rate_pct": 74.3
+    },
+    {
+     "ticker": "INU",
+     "n": 535,
+     "graduated": 11,
+     "rug_rate_pct": 79.1
+    },
+    {
+     "ticker": "TEST",
+     "n": 522,
+     "graduated": 0,
+     "rug_rate_pct": 39.9
+    },
+    {
+     "ticker": "READ",
+     "n": 513,
+     "graduated": 0,
+     "rug_rate_pct": 20.3
+    },
+    {
+     "ticker": "FIX6900",
+     "n": 358,
+     "graduated": 6,
+     "rug_rate_pct": 24.6
+    },
+    {
+     "ticker": "CAT",
+     "n": 308,
+     "graduated": 2,
+     "rug_rate_pct": 73.4
+    },
+    {
+     "ticker": "ANOTHER",
+     "n": 279,
+     "graduated": 0,
+     "rug_rate_pct": 0.4
+    },
+    {
+     "ticker": "ZARK",
+     "n": 277,
+     "graduated": 1,
+     "rug_rate_pct": 80.9
+    },
+    {
+     "ticker": "JANE",
+     "n": 269,
+     "graduated": 11,
+     "rug_rate_pct": 61.2
+    },
+    {
+     "ticker": "HI",
+     "n": 260,
+     "graduated": 6,
+     "rug_rate_pct": 75.6
+    },
+    {
+     "ticker": "ELON",
+     "n": 248,
+     "graduated": 27,
+     "rug_rate_pct": 57.6
+    },
+    {
+     "ticker": "IS",
+     "n": 248,
+     "graduated": 0,
+     "rug_rate_pct": 5.2
+    },
+    {
+     "ticker": "CLM",
+     "n": 235,
+     "graduated": 0,
+     "rug_rate_pct": 1.3
+    },
+    {
+     "ticker": "SOL",
+     "n": 232,
+     "graduated": 1,
+     "rug_rate_pct": 52.8
+    }
+   ]
+  },
+  "bundling": {
+   "n": 129995,
+   "p50": 1.0,
+   "p75": 3.0,
+   "p90": 5.0,
+   "p95": 7.0,
+   "p99": 12.0,
+   "share_zero_pct": 41.4,
+   "share_ge5_pct": 14.4,
+   "share_ge10_pct": 2.4
+  },
+  "dev_share": {
+   "n": 139375,
+   "p50": 0.01737651816691,
+   "p75": 0.056869836267266,
+   "p90": 0.124858181763706,
+   "p95": 0.153285714285714,
+   "p99": 0.7931
+  }
+ }
+}
