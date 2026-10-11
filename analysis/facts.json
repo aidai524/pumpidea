@@ -1610,7 +1610,220 @@
      "mean_dev_share_pct": 5.77,
      "mean_bundle_wallets": 1.96
     }
-   }
+   },
+   "features_basis": {
+    "tape_replay": 139012,
+    "harness_sample": 363
+   },
+   "features_basis_share_pct": {
+    "tape_replay": 99.74,
+    "harness_sample": 0.26
+   },
+   "tape_replay_rows": 139012,
+   "tape_replay_missing_f10_rows": 9212,
+   "tape_replay_missing_f10_pct": 6.63,
+   "tape_replay_missing_reason_create_lag": true
+  },
+  "mayhem_by_day": {
+   "share_pct_min": 20.9,
+   "share_pct_max": 35.47,
+   "share_pct_mean": 27.01,
+   "first_week_mean_pct": 27.73,
+   "last_week_mean_pct": 26.53,
+   "days": [
+    {
+     "day": "2026-08-31",
+     "launches": 31737,
+     "mayhem": 6923,
+     "mayhem_share_pct": 21.81
+    },
+    {
+     "day": "2026-09-01",
+     "launches": 36202,
+     "mayhem": 7566,
+     "mayhem_share_pct": 20.9
+    },
+    {
+     "day": "2026-09-02",
+     "launches": 32899,
+     "mayhem": 8142,
+     "mayhem_share_pct": 24.75
+    },
+    {
+     "day": "2026-09-03",
+     "launches": 32926,
+     "mayhem": 9601,
+     "mayhem_share_pct": 29.16
+    },
+    {
+     "day": "2026-09-04",
+     "launches": 29467,
+     "mayhem": 10155,
+     "mayhem_share_pct": 34.46
+    },
+    {
+     "day": "2026-09-05",
+     "launches": 21184,
+     "mayhem": 7244,
+     "mayhem_share_pct": 34.2
+    },
+    {
+     "day": "2026-09-06",
+     "launches": 22327,
+     "mayhem": 6436,
+     "mayhem_share_pct": 28.83
+    },
+    {
+     "day": "2026-09-07",
+     "launches": 26951,
+     "mayhem": 5793,
+     "mayhem_share_pct": 21.49
+    },
+    {
+     "day": "2026-09-08",
+     "launches": 29446,
+     "mayhem": 7104,
+     "mayhem_share_pct": 24.13
+    },
+    {
+     "day": "2026-09-09",
+     "launches": 33580,
+     "mayhem": 7666,
+     "mayhem_share_pct": 22.83
+    },
+    {
+     "day": "2026-09-10",
+     "launches": 31196,
+     "mayhem": 8976,
+     "mayhem_share_pct": 28.77
+    },
+    {
+     "day": "2026-09-11",
+     "launches": 28530,
+     "mayhem": 10120,
+     "mayhem_share_pct": 35.47
+    },
+    {
+     "day": "2026-09-12",
+     "launches": 28257,
+     "mayhem": 8332,
+     "mayhem_share_pct": 29.49
+    },
+    {
+     "day": "2026-09-13",
+     "launches": 24806,
+     "mayhem": 5242,
+     "mayhem_share_pct": 21.13
+    },
+    {
+     "day": "2026-09-14",
+     "launches": 29760,
+     "mayhem": 7790,
+     "mayhem_share_pct": 26.18
+    },
+    {
+     "day": "2026-09-15",
+     "launches": 34272,
+     "mayhem": 9292,
+     "mayhem_share_pct": 27.11
+    },
+    {
+     "day": "2026-09-16",
+     "launches": 33867,
+     "mayhem": 10313,
+     "mayhem_share_pct": 30.45
+    },
+    {
+     "day": "2026-09-17",
+     "launches": 38884,
+     "mayhem": 11730,
+     "mayhem_share_pct": 30.17
+    },
+    {
+     "day": "2026-09-18",
+     "launches": 36003,
+     "mayhem": 9607,
+     "mayhem_share_pct": 26.68
+    },
+    {
+     "day": "2026-09-19",
+     "launches": 31901,
+     "mayhem": 7668,
+     "mayhem_share_pct": 24.04
+    },
+    {
+     "day": "2026-09-20",
+     "launches": 30672,
+     "mayhem": 7943,
+     "mayhem_share_pct": 25.9
+    },
+    {
+     "day": "2026-09-21",
+     "launches": 34565,
+     "mayhem": 8837,
+     "mayhem_share_pct": 25.57
+    },
+    {
+     "day": "2026-09-22",
+     "launches": 32988,
+     "mayhem": 8325,
+     "mayhem_share_pct": 25.24
+    },
+    {
+     "day": "2026-09-23",
+     "launches": 34644,
+     "mayhem": 10204,
+     "mayhem_share_pct": 29.45
+    },
+    {
+     "day": "2026-09-24",
+     "launches": 34510,
+     "mayhem": 10441,
+     "mayhem_share_pct": 30.25
+    },
+    {
+     "day": "2026-09-25",
+     "launches": 34576,
+     "mayhem": 9986,
+     "mayhem_share_pct": 28.88
+    },
+    {
+     "day": "2026-09-26",
+     "launches": 43058,
+     "mayhem": 9366,
+     "mayhem_share_pct": 21.75
+    },
+    {
+     "day": "2026-09-27",
+     "launches": 37908,
+     "mayhem": 10417,
+     "mayhem_share_pct": 27.48
+    },
+    {
+     "day": "2026-09-28",
+     "launches": 42266,
+     "mayhem": 10435,
+     "mayhem_share_pct": 24.69
+    },
+    {
+     "day": "2026-09-29",
+     "launches": 43327,
+     "mayhem": 11240,
+     "mayhem_share_pct": 25.94
+    },
+    {
+     "day": "2026-09-30",
+     "launches": 49042,
+     "mayhem": 14549,
+     "mayhem_share_pct": 29.67
+    },
+    {
+     "day": "2026-10-01",
+     "launches": 50350,
+     "mayhem": 13745,
+     "mayhem_share_pct": 27.3
+    }
+   ]
   },
   "tickers": {
    "unique": 43212,

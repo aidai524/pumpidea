@@ -191,7 +191,45 @@ veteran["by_prior_launches"] = {
              "mean_dev_share_pct": round(r.dev_share * 100, 2) if pd.notna(r.dev_share) else None,
              "mean_bundle_wallets": round(r.bundle, 2) if pd.notna(r.bundle) else None}
     for i, r in g.iterrows()}
+# `f10_*` 在**干净窗口里到底是什么**：
+#   legacy 子集 → harness_sample（实盘影子采样，非随机，真正的 KI-01）
+#   launches 子集 → tape_replay（对当天每个币离线重放，不是抽样）
+# 这个区分很重要：报告 §3 用的是 launches 子集，它的绝对值近似总体，
+# 不该被套上 harness 抽样的帽子。
+_bs = c["features_basis"].value_counts()
+veteran["features_basis"] = {k: int(v) for k, v in _bs.items()}
+veteran["features_basis_share_pct"] = {k: round(v / len(c) * 100, 2)
+                                       for k, v in _bs.items()}
+tr = c[c["features_basis"] == "tape_replay"]
+mis = tr["f10_age"].isna()
+veteran["tape_replay_rows"] = len(tr)
+veteran["tape_replay_missing_f10_rows"] = int(mis.sum())
+veteran["tape_replay_missing_f10_pct"] = round(mis.mean() * 100, 2)
+veteran["tape_replay_missing_reason_create_lag"] = bool(
+    tr.loc[mis, "create_lag_s"].gt(1).all()
+    and tr.loc[~mis, "create_lag_s"].le(1).all())
 hf["veteran"] = veteran
+
+# mayhem 占比的逐日序列（两个子集都用：mayhem 列不依赖解码器修复）。
+# 用途：回答"mayhem 是不是在涨"——报告里与第三方 91% 的差距原先只能猜"时间"，
+# 现在能在窗口内检验。
+allk = pd.concat([new[["kind", "day"]], old[["kind", "day"]]], ignore_index=True)
+mh = allk.groupby("day").agg(
+    launches=("kind", "size"),
+    mayhem=("kind", lambda s: int((s == "mayhem_sol").sum())),
+    classic=("kind", lambda s: int((s == "classic").sum())),
+    other_quote=("kind", lambda s: int((s == "other_quote").sum())))
+mh["mayhem_share_pct"] = (mh["mayhem"] / mh["launches"] * 100).round(2)
+hf["mayhem_by_day"] = {
+    "share_pct_min": float(mh["mayhem_share_pct"].min()),
+    "share_pct_max": float(mh["mayhem_share_pct"].max()),
+    "share_pct_mean": round(float(mh["mayhem_share_pct"].mean()), 2),
+    "first_week_mean_pct": round(float(mh["mayhem_share_pct"].iloc[:7].mean()), 2),
+    "last_week_mean_pct": round(float(mh["mayhem_share_pct"].iloc[-7:].mean()), 2),
+    "days": [{"day": d.strftime("%Y-%m-%d"), "launches": int(r.launches),
+              "mayhem": int(r.mayhem), "mayhem_share_pct": float(r.mayhem_share_pct)}
+             for d, r in mh.iterrows()],
+}
 
 # ticker 抄袭
 sym = c.assign(sym=c["symbol"].fillna("").str.upper().str.strip())

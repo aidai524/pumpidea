@@ -10,6 +10,7 @@ F = json.loads((ROOT / "analysis" / "facts.json").read_text())
 W = F["stats"]["windows"]; w30, w7 = W["30d"], W["7d"]
 BY = w30["by_kind"]; HF = F["hf"]; D = F["defillama"]; P = F["stats"]["pools"]
 C = HF["creator_concentration"]["launches"]; V = HF["veteran"]; R = F["revenue"]
+MH = HF["mayhem_by_day"]
 
 # 报告里写下的数字 → 从 facts.json 算出的期望值
 CHECKS = {
@@ -49,6 +50,13 @@ CHECKS = {
     "未抽样毕业 2.992%":     (2.992,   V["unsampled_graduation_rate_pct"]),
     "抽样跑路 65.33%":       (65.33,   V["sampled_rug_rate_pct"]),
     "未抽样跑路 66.47%":     (66.47,   V["unsampled_rug_rate_pct"]),
+    "tape_replay 99.74%":    (99.74,   V["features_basis_share_pct"]["tape_replay"]),
+    "重放缺失 6.6%":         (6.6,     round(V["tape_replay_missing_f10_pct"], 1)),
+    "mayhem 占比下限 20.9%": (20.9,    MH["share_pct_min"]),
+    "mayhem 占比上限 35.5%": (35.5,    round(MH["share_pct_max"], 1)),
+    "mayhem 均值 27.0%":     (27.0,    MH["share_pct_mean"]),
+    "mayhem 首周 27.7%":     (27.7,    MH["first_week_mean_pct"]),
+    "mayhem 末周 26.5%":     (26.5,    MH["last_week_mean_pct"]),
     "peak_rs p50 2.01":      (2.008,   HF["peak_rs"]["launches"]["p50"]),
     "peak_rs p90 22.9":      (22.919,  HF["peak_rs"]["launches"]["p90"]),
     "peak_rs p99 85.0":      (85.005,  HF["peak_rs"]["launches"]["p99"]),
@@ -100,7 +108,7 @@ print("  ✅ 全部与 facts.json 一致")
 text = (ROOT / "report.md").read_text()
 for needle in ("1,156,058", "2.06%", "0.86%", "58.0%", "57.7%", "50.6%",
                "$54.5M", "$171.6M", "$15.36B", "1.077%", "0.130%",
-               "35.55%", "3,651", "62.35%", "0.017%"):
+               "35.55%", "3,651", "62.35%", "0.017%", "99.74%", "20.9%", "35.5%"):
     if needle not in text:
         print(f"  ⚠️ 报告正文里找不到 {needle}")
 print("  报告正文引用检查完成")
