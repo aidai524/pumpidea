@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PULSE — the attention layer for the launch economy</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <span class="logo">PULSE</span>
+    <span class="tag">the attention layer for the launch economy</span>
+  </div>
+  <div class="status">
+    <span class="dot" id="dot"></span>
+    <span id="updated">connecting…</span>
+    <span class="src">public on-chain data · not financial advice</span>
+  </div>
+</header>
+
+<section class="kpis" id="kpis"></section>
+
+<section class="block">
+  <div class="block-head">
+    <h2>LIVE WATCH</h2>
+    <span class="hint">loopholetape radar · refreshes every 5 s upstream</span>
+  </div>
+  <div class="watch">
+    <div class="panel">
+      <h3>Closest to graduation</h3>
+      <table id="watch-grad"></table>
+    </div>
+    <div class="panel">
+      <h3>Rug radar</h3>
+      <table id="watch-rug"></table>
+    </div>
+  </div>
+</section>
+
+<section class="block">
+  <div class="block-head">
+    <h2>STORY WALL</h2>
+    <span class="hint">auto-generated, one card per event — share-ready</span>
+  </div>
+  <div class="wall" id="wall"></div>
+</section>
+
+<section class="block">
+  <div class="block-head">
+    <h2>THE TAPE</h2>
+    <span class="hint">true graduations, newest first — instant bundle vs organic</span>
+  </div>
+  <table class="tape" id="tape"></table>
+</section>
+
+<footer class="foot">
+  <span>Demo built on the free loopholetape public capture. Not affiliated with pump.fun.</span>
+  <span id="gen"></span>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>

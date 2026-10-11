@@ -1,0 +1,77 @@
+:root {
+  --bg: #07090d;
+  --panel: #0e131b;
+  --line: #1b2431;
+  --text: #e8edf4;
+  --sub: #9aa6b6;
+  --muted: #5d6a7a;
+  --accent: #38bdf8;
+  --pink: #ff4d6d;
+  --green: #22c55e;
+  --amber: #f59e0b;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--text);
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 14px; line-height: 1.5;
+}
+a { color: inherit; text-decoration: none; }
+h2, h3 { margin: 0; font-weight: 800; }
+
+.top {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 18px 28px; border-bottom: 1px solid var(--line);
+  position: sticky; top: 0; background: rgba(7,9,13,.92); backdrop-filter: blur(8px); z-index: 5;
+}
+.brand { display: flex; align-items: baseline; gap: 14px; }
+.logo { font-size: 22px; font-weight: 800; letter-spacing: 6px; color: var(--text); }
+.tag { color: var(--muted); font-size: 12px; }
+.status { display: flex; align-items: center; gap: 10px; color: var(--sub); font-size: 12px; }
+.src { color: var(--muted); }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 10px var(--green); animation: pulse 2s infinite; }
+.dot.stale { background: var(--amber); box-shadow: 0 0 10px var(--amber); }
+@keyframes pulse { 50% { opacity: .35; } }
+
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1px; background: var(--line); border-bottom: 1px solid var(--line); }
+.kpi { background: var(--panel); padding: 16px 20px; }
+.kpi .k { color: var(--muted); font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; }
+.kpi .v { font-size: 26px; font-weight: 800; margin-top: 6px; }
+.kpi .h { color: var(--muted); font-size: 11px; margin-top: 4px; }
+
+.block { padding: 22px 28px; border-bottom: 1px solid var(--line); }
+.block-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 14px; }
+.block-head h2 { font-size: 14px; letter-spacing: 4px; }
+.hint { color: var(--muted); font-size: 12px; }
+
+.watch { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 900px) { .watch { grid-template-columns: 1fr; } }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; }
+.panel h3 { font-size: 12px; letter-spacing: 2px; color: var(--sub); margin-bottom: 10px; text-transform: uppercase; }
+.watch table { width: 100%; border-collapse: collapse; }
+.watch td { padding: 7px 8px; border-top: 1px solid var(--line); font-size: 13px; }
+.watch tr:first-child td { border-top: 0; }
+.sym { font-weight: 700; }
+.num { text-align: right; color: var(--sub); }
+.hot { color: var(--pink); font-weight: 700; }
+.warm { color: var(--amber); }
+.flag { color: var(--amber); font-size: 11px; border: 1px solid var(--line); border-radius: 4px; padding: 1px 5px; margin-left: 5px; }
+
+.wall { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; transition: transform .15s, border-color .15s; }
+.card:hover { transform: translateY(-2px); border-color: var(--accent); }
+.card img { width: 100%; display: block; }
+.card .meta { padding: 10px 14px; display: flex; justify-content: space-between; gap: 8px; font-size: 12px; color: var(--muted); }
+.card .meta .t { color: var(--sub); }
+
+.tape { width: 100%; border-collapse: collapse; }
+.tape th { text-align: left; color: var(--muted); font-size: 11px; letter-spacing: 1.5px; font-weight: 400; text-transform: uppercase; padding: 8px; border-bottom: 1px solid var(--line); }
+.tape td { padding: 8px; border-bottom: 1px solid var(--line); font-size: 13px; }
+.tape tr:hover td { background: var(--panel); }
+.chip { display: inline-block; padding: 1px 8px; border-radius: 99px; font-size: 11px; font-weight: 700; }
+.chip.instant { background: rgba(255,77,109,.15); color: var(--pink); }
+.chip.organic { background: rgba(34,197,94,.14); color: var(--green); }
+.chip.none { background: rgba(255,255,255,.06); color: var(--muted); }
+.right { text-align: right; }
+
+.foot { display: flex; justify-content: space-between; gap: 12px; padding: 16px 28px 40px; color: var(--muted); font-size: 12px; }
