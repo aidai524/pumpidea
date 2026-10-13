@@ -1,0 +1,55 @@
+{
+ "as_of": "2026-10-13T07:03:30Z",
+ "txs": 6,
+ "rows": [
+  {
+   "tx": "41Ksp4RvfRcWhnRaAB3pNBKybpZDiNH2ZphAWni4cMnpYF2aAF5NTBHmzBLNNuhQnEuExQzhghWTofVpScG6deKw",
+   "owner": "62qc2CNXwrYqQScmEdiZFFAnJR262PxWEuNQtxfafNgV",
+   "role": "normal",
+   "mint": "So11111111111111111111111111111111111111112",
+   "delta": 1.0900021152338013e-07
+  },
+  {
+   "tx": "41Ksp4RvfRcWhnRaAB3pNBKybpZDiNH2ZphAWni4cMnpYF2aAF5NTBHmzBLNNuhQnEuExQzhghWTofVpScG6deKw",
+   "owner": "5YxQFdt3Tr9zJLvkFccqXVUwhdTWJQc1fFg2YPbxvxeD",
+   "role": "buyback",
+   "mint": "So11111111111111111111111111111111111111112",
+   "delta": 1.0900000002589394e-07
+  },
+  {
+   "tx": "2K3ii2DbewNqWrnvC92HC2xtByAo8NW7khX4jmUW36LwSBNsiURtc7JUF7HXAfKsAF8kVwfYoSmJ1zZorcZYqgSn",
+   "owner": "62qc2CNXwrYqQScmEdiZFFAnJR262PxWEuNQtxfafNgV",
+   "role": "normal",
+   "mint": "So11111111111111111111111111111111111111112",
+   "delta": 4.899993655271828e-08
+  },
+  {
+   "tx": "2K3ii2DbewNqWrnvC92HC2xtByAo8NW7khX4jmUW36LwSBNsiURtc7JUF7HXAfKsAF8kVwfYoSmJ1zZorcZYqgSn",
+   "owner": "5eHhjP8JaYkz83CWwvGU2uMUXefd3AazWGx4gpcuEEYD",
+   "role": "buyback",
+   "mint": "So11111111111111111111111111111111111111112",
+   "delta": 4.900000000196414e-08
+  },
+  {
+   "tx": "4uhFqRBXsf4jcjxPF1WGRUKcbodzgkLBFAJScyL7asi924LiDQZ6xdL2ZJ5zyh1sPdFMNEt8Cg4sKMkPP94d9hgo",
+   "owner": "5YxQFdt3Tr9zJLvkFccqXVUwhdTWJQc1fFg2YPbxvxeD",
+   "role": "buyback",
+   "mint": "So11111111111111111111111111111111111111112",
+   "delta": 7.000000001866624e-08
+  },
+  {
+   "tx": "4BNAx7nUYsAtcYfwiVKE5pfnYH7CrNb52bJQrYseeZZhh7vuZWRhw1CmoPLt2MHXvF5W2PrURMvdTa4k3uQgByNC",
+   "owner": "62qc2CNXwrYqQScmEdiZFFAnJR262PxWEuNQtxfafNgV",
+   "role": "normal",
+   "mint": "So11111111111111111111111111111111111111112",
+   "delta": 8.400002116104588e-08
+  },
+  {
+   "tx": "4BNAx7nUYsAtcYfwiVKE5pfnYH7CrNb52bJQrYseeZZhh7vuZWRhw1CmoPLt2MHXvF5W2PrURMvdTa4k3uQgByNC",
+   "owner": "A7hAgCzFw14fejgCp387JUJRMNyz4j89JKnhtKU8piqW",
+   "role": "buyback",
+   "mint": "So11111111111111111111111111111111111111112",
+   "delta": 8.400000001129726e-08
+  }
+ ]
+}

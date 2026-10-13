@@ -1,0 +1,86 @@
+{
+ "program": "pfeeUxB6jkeY1Hxd7CsFCAjcbHA9rWtchMGdZ6VojVZ",
+ "method": "sha256(seeds+nonce+program+PDA) off-curve",
+ "pdas": {
+  "fee_program_global": {
+   "address": "CHqnuTkj6sXDFknM652aEFPECZh9qVsBXWkhPohmV9dA",
+   "nonce": 254,
+   "on_chain": true
+  },
+  "event_authority": {
+   "address": "D6QxXDt6hhcCpto4HiZKkN2YQ2iZRF5R7S3caCHpUsML",
+   "nonce": 252,
+   "on_chain": false
+  },
+  "fee_config": {
+   "address": "FzGAMHgGrfXzqaEfLC1ML134YPC5Gxi7VzSKsrpbT6v9",
+   "nonce": 253,
+   "on_chain": false
+  },
+  "donation_fee_pda.base": {
+   "address": "9YZR13AxBzmFnkgB1frV9UPAemtLsHCHeGVmNqj8WL88",
+   "nonce": 255,
+   "on_chain": false
+  },
+  "pool_authority": {
+   "address": "5boxyuK5mzaAB3sb78X6fXTJ4mYJfcid5r2AoRDvRQeK",
+   "nonce": 253,
+   "on_chain": false
+  },
+  "global": {
+   "address": "RybKkJpjDtehGRFkiUKXQvQv2iKEfNx9kd34uMYnhc4",
+   "nonce": 254,
+   "on_chain": false
+  },
+  "sharing_config": {
+   "address": "CZjJUWGHRDNDxdWUgk1QenvwfDSxjfEH4Bdr2oRZH2Q6",
+   "nonce": 254,
+   "on_chain": false
+  },
+  "donation_fee_pda": {
+   "address": "9YZR13AxBzmFnkgB1frV9UPAemtLsHCHeGVmNqj8WL88",
+   "nonce": 255,
+   "on_chain": false
+  },
+  "donation_fee_pda_ata": {
+   "address": "CmdKi9ZWPbDva6Bc5jZVYAuFz3hyebfAWh8Rsxp8H5qY",
+   "nonce": 255,
+   "on_chain": false
+  },
+  "bonding_curve": {
+   "address": "149172LSSNX8kvX9xyHvUyb4vbnwg4yF39JfmM5fjWhu",
+   "nonce": 255,
+   "on_chain": false
+  },
+  "pump_event_authority": {
+   "address": "D6QxXDt6hhcCpto4HiZKkN2YQ2iZRF5R7S3caCHpUsML",
+   "nonce": 252,
+   "on_chain": false
+  },
+  "pump_amm_event_authority": {
+   "address": "D6QxXDt6hhcCpto4HiZKkN2YQ2iZRF5R7S3caCHpUsML",
+   "nonce": 252,
+   "on_chain": false
+  },
+  "pump_global": {
+   "address": "RybKkJpjDtehGRFkiUKXQvQv2iKEfNx9kd34uMYnhc4",
+   "nonce": 254,
+   "on_chain": false
+  },
+  "pump_creator_vault": {
+   "address": "6dWkKZMuwY3hW4SBRt9g9MSSnjhkYQANa8BLy38NJdvP",
+   "nonce": 255,
+   "on_chain": false
+  },
+  "amm_event_authority": {
+   "address": "D6QxXDt6hhcCpto4HiZKkN2YQ2iZRF5R7S3caCHpUsML",
+   "nonce": 252,
+   "on_chain": false
+  },
+  "coin_creator_vault_authority": {
+   "address": "HFTUhFcxzg1M2xtwDnHQHyee4hRAvpomMkPk6RZFGw83",
+   "nonce": 254,
+   "on_chain": false
+  }
+ }
+}

@@ -122,6 +122,39 @@
 
 ---
 
+## 4.6 A1+A2 实测结果（2026-10-13）
+
+工具：`fee_program_probe.py`（`derive` / `scan` / `trades`）与 `revenue_probe.py`。
+
+**已确认的机制**（官方 SDK 4.0.0 源码 + 链上交易双向验证）：
+
+1. 每笔交易从 8 个 normal 收款地址**随机选 1 个**收协议费，从 8 个 buyback
+   地址随机选 1 个收回购费；
+2. 两者都以 **quote 资产**入账——SOL 池是 WSOL（`So1111…`），自定义交易对/
+   币本位池是任意 SPL token；
+3. 因此**收入碎片化在几十万个 token 账户上**：实测单个收款地址持有
+   **25.7 万 ~ 57.1 万** 个 SPL token 账户。这就是官方看板在 custom pairs 上线
+   后无法正确归集收入/回购的结构性原因。
+
+**两条可写进提案的发现**：
+
+- **发现 #1（公开资料与链上不一致）**：公开 docs 与 npm SDK 4.0.0 的 30 个
+  指令判别码全部等于 `sha256("global:"+name)[:8]`（校验 30/30），但链上真实
+  调用的费用程序指令判别码 `297ebd54ab49eeee` **不在其中**——部署版本与
+  公开 ABI 存在缺口。精确解码需要他们确认版本，或按 SDK 历史版本对齐。
+- **发现 #2（口径根源）**：收入不是「SOL 进一个钱包」而是「quote 资产进几十万
+  个 ATA」。任何只数 SOL 余额或只看单一 USD 口径的看板都会失真；正确做法是
+  按交易解码费率（分层表）再对 quote 资产定价。
+
+**PDA 推导已验证**：纯 Python 实现（sha256 + ed25519 曲外校验）推出的
+`fee-program-global` = `CHqnuTkj6sXDFknM652aEFPECZh9qVsBXWkhPohmV9dA`，链上存在。
+
+**到「一手收入数字」还差**：① 匹配部署版本的 ABI（问他们或对齐 SDK 历史版）；
+② 付费 RPC/Geyser 全量扫；③ quote 资产定价层；④ creator fee（creator-vault /
+sharing-config）路径。
+
+---
+
 ## 5. 可验证 / 不可验证边界
 
 | 问题 | 公开数据 | 需要内部数据 |
