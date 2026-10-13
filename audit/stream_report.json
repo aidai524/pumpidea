@@ -1,0 +1,45 @@
+{
+ "as_of": "2026-10-13T10:50:36Z",
+ "sol_usd": 106.37,
+ "daily": {
+  "2026-10-13": {
+   "protocol_fee": 676906.83,
+   "creator_fee": 33688.95,
+   "buyback_fee": 338236.46,
+   "lp_fee": 3312843.2,
+   "cashback": 17.09,
+   "holder_rewards": 18209.68,
+   "total": 4379902.21,
+   "total_liq": 39543.03,
+   "n": 260522,
+   "unpriced_mints": 60,
+   "illiquid_mints": 210
+  }
+ },
+ "top_mints": [
+  {
+   "mint": "6BjgJunEkaCtjmKRjHm68GXUf5LQCTsrZBw2NfSLsrAh",
+   "usd": 4210222.6
+  },
+  {
+   "mint": "J3NKxxXZcnNiMjKw9hYb2K4LUxgwB6t1FtPtQVsv3KFr",
+   "usd": 31208.48
+  },
+  {
+   "mint": "So11111111111111111111111111111111111111112",
+   "usd": 24352.12
+  },
+  {
+   "mint": "11111111111111111111111111111111",
+   "usd": 15001.39
+  },
+  {
+   "mint": "E7g6g3xuDdRAS3oHi6YLAK2G7m7FWSGDRvpxtbKwpump",
+   "usd": 11523.89
+  },
+  {
+   "mint": "6RzU94Jgh7uSn5YGfBPwHQBXQzxepRopG9gz686vXZu9",
+   "usd": 11507.39
+  }
+ ]
+}
