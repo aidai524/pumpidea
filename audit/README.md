@@ -93,6 +93,35 @@
 
 ---
 
+## 4.5 链上直读（L1，一手数据，不经过第三方）
+
+2026-10-13 新增。官方在 `pump-fun/pump-public-docs` 公开了全部所需资源：
+
+| 资源 | 内容 |
+|---|---|
+| `docs/FEE_RECIPIENTS.md` | **24 个费用收款地址**（8 normal + 8 mayhem 保留 + 8 buyback） |
+| `idl/pump_fees.json` | 费用程序 IDL，程序 ID `pfeeUxB6jkeY1Hxd7CsFCAjcbHA9rWtchMGdZ6VojVZ` |
+| `docs/FEE_PROGRAM_README.md` | 动态费率计算逻辑（按市值分层） |
+| `docs/fees` | 完整费率表（曲线 / PumpSwap / 自定义交易对） |
+
+**实测（公共 Solana RPC，`revenue_probe.py --snapshot`）**：normal 8 个地址合计
+**91,489.9 SOL**、mayhem **135.1 SOL**、buyback **15.8 SOL**（buyback 基本实时扫走）。
+
+**结构发现**：直接看收款地址的交易，大多数是「费用配置账户引用」而不是现金转账；
+费用先进 **PDA**，再由程序指令（`sweep_buyback` / `claim_social_fee_pda` 等）扫描/申领。
+所以精确重建收入需要**解码 pump_fees 指令与 PDA 账户**，而不是只看收款地址余额差。
+
+**当前工具**：`revenue_probe.py`
+- `--snapshot`：秒级读 24 个地址余额（可靠）
+- `--hours N --sample M`：采样交易做入账/扫出估计（方法演示；公共 RPC 慢且采样噪声大）
+
+**下一步工程量**（即审计服务的第一阶段）：
+1. 从 IDL 派生 PDA，解码 `sweep_buyback` / claims，建立协议 / 回购 / 创作者三条日收入线
+2. 付费 RPC 或 Geyser 流（公共 RPC 跑 8×30 笔就要 350 秒，无法全量）
+3. custom pairs：跟踪 SPL 转账（USDC / 代币化股票）进入同一套收款/PDA 体系
+
+---
+
 ## 5. 可验证 / 不可验证边界
 
 | 问题 | 公开数据 | 需要内部数据 |
@@ -112,7 +141,8 @@
 
 ```bash
 cd pumpfun/audit
-../.venv/bin/python preaudit.py     # 重新抓取前请更新 data/ 下的快照
+../.venv/bin/python preaudit.py        # 重新抓取前请更新 data/ 下的快照
+python3 revenue_probe.py --snapshot    # 直读 24 个官方收费地址余额（链上，一手）
 ```
 
 数据快照（`data/`）：DefiLlama 6 个端点、fees.pump.fun 页面与结构化数字、loopholetape 统计、SOL 价格。facts 全在 `facts.json`，报告数字与它一一对应。

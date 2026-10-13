@@ -1,0 +1,121 @@
+{
+ "as_of": "2026-10-13T06:14:53Z",
+ "method": "balance delta (pre/postBalances) on published fee recipients",
+ "hours": 6.0,
+ "sample_per_address": 80,
+ "addresses": {
+  "normal": [
+   {
+    "address": "62qc2CNXwrYqQScmEdiZFFAnJR262PxWEuNQtxfafNgV",
+    "balance_sol": 26490.241
+   },
+   {
+    "address": "7VtfL8fvgNfhz17qKRMjzQEXgbdpnHHHQRh54R9jP2RJ",
+    "balance_sol": 10117.788
+   },
+   {
+    "address": "7hTckgnGnLQR6sdH7YkqFTAA7VwTfYFaZ6EhEsU3saCX",
+    "balance_sol": 9175.17
+   },
+   {
+    "address": "9rPYyANsfQZw3DnDmKE3YCQF5E8oD89UXoHn9JFEhJUz",
+    "balance_sol": 7151.828
+   },
+   {
+    "address": "AVmoTthdrX6tKt4nDjco2D775W2YK3sDhxPcMmzUAmTY",
+    "balance_sol": 7192.255
+   },
+   {
+    "address": "CebN5WGQ4jvEPvsVU4EoHEpgzq1VV7AbicfhtW4xC9iM",
+    "balance_sol": 11257.867
+   },
+   {
+    "address": "FWsW1xNtWscwNmKv6wVsU1iTzRN6wmmk3MjxRP5tT7hz",
+    "balance_sol": 9699.067
+   },
+   {
+    "address": "G5UZAVbAf46s7cKWoyKu8kYTip9DGTpbLZ2qa9Aq69dP",
+    "balance_sol": 10405.729
+   }
+  ],
+  "mayhem": [
+   {
+    "address": "GesfTA3X2arioaHp8bbKdjG9vJtskViWACZoYvxp4twS",
+    "balance_sol": 24.489
+   },
+   {
+    "address": "4budycTjhs9fD6xw62VBducVTNgMgJJ5BgtKq7mAZwn6",
+    "balance_sol": 16.786
+   },
+   {
+    "address": "8SBKzEQU4nLSzcwF4a74F2iaUDQyTfjGndn6qUWBnrpR",
+    "balance_sol": 17.239
+   },
+   {
+    "address": "4UQeTP1T39KZ9Sfxzo3WR5skgsaP6NZa87BAkuazLEKH",
+    "balance_sol": 15.274
+   },
+   {
+    "address": "8sNeir4QsLsJdYpc9RZacohhK1Y5FLU3nC5LXgYB4aa6",
+    "balance_sol": 15.469
+   },
+   {
+    "address": "Fh9HmeLNUMVCvejxCtCL2DbYaRyBFVJ5xrWkLnMH6fdk",
+    "balance_sol": 15.798
+   },
+   {
+    "address": "463MEnMeGyJekNZFQSTUABBEbLnvMTALbT6ZmsxAbAdq",
+    "balance_sol": 13.976
+   },
+   {
+    "address": "6AUH3WEHucYZyC61hqpqYUWVto5qA5hjHuNQ32GNnNxA",
+    "balance_sol": 16.11
+   }
+  ],
+  "buyback": [
+   {
+    "address": "5YxQFdt3Tr9zJLvkFccqXVUwhdTWJQc1fFg2YPbxvxeD",
+    "balance_sol": 3.334
+   },
+   {
+    "address": "9M4giFFMxmFGXtc3feFzRai56WbBqehoSeRE5GK7gf7",
+    "balance_sol": 2.107
+   },
+   {
+    "address": "GXPFM2caqTtQYC2cJ5yJRi9VDkpsYZXzYdwYpGnLmtDL",
+    "balance_sol": 1.693
+   },
+   {
+    "address": "3BpXnfJaUTiwXnJNe7Ej1rcbzqTTQUvLShZaWazebsVR",
+    "balance_sol": 1.55
+   },
+   {
+    "address": "5cjcW9wExnJJiqgLjq7DEG75Pm6JBgE1hNv4B2vHXUW6",
+    "balance_sol": 1.85
+   },
+   {
+    "address": "EHAAiTxcdDwQ3U4bU6YcMsQGaekdzLS3B5SmYo46kJtL",
+    "balance_sol": 1.958
+   },
+   {
+    "address": "5eHhjP8JaYkz83CWwvGU2uMUXefd3AazWGx4gpcuEEYD",
+    "balance_sol": 1.702
+   },
+   {
+    "address": "A7hAgCzFw14fejgCp387JUJRMNyz4j89JKnhtKU8piqW",
+    "balance_sol": 1.593
+   }
+  ]
+ },
+ "totals": {
+  "normal": {
+   "balance_sol": 91489.9
+  },
+  "mayhem": {
+   "balance_sol": 135.1
+  },
+  "buyback": {
+   "balance_sol": 15.8
+  }
+ }
+}
