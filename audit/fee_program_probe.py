@@ -177,9 +177,25 @@ def cmd_derive() -> None:
     print(f"写了 {ROOT/'fee_pdas.json'}")
 
 
+def _sigs(addr: str, limit: int) -> list[dict]:
+    """分页拉签名（RPC 单次上限 1000）。"""
+    out: list[dict] = []
+    before = None
+    while len(out) < limit:
+        opts: dict = {"limit": min(1000, limit - len(out))}
+        if before:
+            opts["before"] = before
+        page = CLIENT.call("getSignaturesForAddress", [addr, opts]) or []
+        if not page:
+            break
+        out.extend(page)
+        before = page[-1]["signature"]
+    return out[:limit]
+
+
 def cmd_scan(txs: int, workers: int) -> None:
     disc = {bytes(ix["discriminator"]).hex(): ix["name"] for ix in IDL["instructions"]}
-    sigs = CLIENT.call("getSignaturesForAddress", [PROG, {"limit": txs}]) or []
+    sigs = _sigs(PROG, txs)
     counts: dict[str, int] = defaultdict(int)
     for tx in _fetch_txs(sigs, workers):
         for h, _, _ in _program_instructions(tx):
@@ -203,56 +219,84 @@ def _sol_price() -> float:
         return 0.0
 
 
-def cmd_trades(txs: int, workers: int) -> None:
-    """聚合 24 个收款地址在 AMM 交易里的 quote 资产入账，并按时窗外推。"""
-    sigs = CLIENT.call("getSignaturesForAddress", [AMM, {"limit": txs}]) or []
+def _inflows(tx: dict) -> list[tuple[str, str, float]]:
+    """返回一笔交易里所有流向 24 个收款地址的正向 token 变化。"""
+    meta = tx.get("meta") or {}
+    pre = {b["accountIndex"]: b for b in (meta.get("preTokenBalances") or [])}
+    out = []
+    for b in (meta.get("postTokenBalances") or []):
+        p = pre.get(b["accountIndex"], {"uiTokenAmount": {"uiAmountString": "0"},
+                                        "owner": b.get("owner")})
+        try:
+            d = (float(b["uiTokenAmount"]["uiAmountString"] or 0)
+                 - float(p["uiTokenAmount"]["uiAmountString"] or 0))
+        except (TypeError, ValueError):
+            continue
+        owner = b.get("owner") or p.get("owner")
+        if d > 0 and owner in RECIPIENTS:
+            out.append((owner, b.get("mint"), d))
+    return out
+
+
+def cmd_trades(per_address: int, workers: int) -> None:
+    """扫 24 个收款地址的交易（去重），聚合 quote 资产入账并外推。
+
+    Alchemy 对程序地址的签名索引为空，所以从收款地址入口扫；同一笔交易可能
+    被多个地址引用，用签名去重。normal 与 buyback 各拿一份，数值应大致相等。
+    """
+    sigs: dict[str, str] = {}
+    for a in NORMAL + BUYBACK:
+        for s in _sigs(a, per_address):
+            sigs.setdefault(s["signature"], a)
+    todo = [{"signature": k} for k in sigs]
+    print(f"收款地址签名去重后 {len(todo)} 笔，开始拉取…", flush=True)
+
+    sol_usd = _sol_price()
     per = defaultdict(lambda: {"count": 0, "mints": defaultdict(float)})
     times: list[int] = []
     priced_usd = 0.0
-    sol_usd = _sol_price()
-    for tx in _fetch_txs(sigs, workers):
-        meta = tx.get("meta") or {}
+    unpriced_usd_mints: dict[str, float] = defaultdict(float)
+    for tx in _fetch_txs(todo, workers):
+        flows = _inflows(tx)
+        if not flows:
+            continue
         bt = tx.get("blockTime") or 0
         if bt:
             times.append(bt)
-        pre = {b["accountIndex"]: b for b in (meta.get("preTokenBalances") or [])}
-        for b in (meta.get("postTokenBalances") or []):
-            p = pre.get(b["accountIndex"], {"uiTokenAmount": {"uiAmountString": "0"},
-                                            "owner": b.get("owner")})
-            try:
-                delta = (float(b["uiTokenAmount"]["uiAmountString"] or 0)
-                         - float(p["uiTokenAmount"]["uiAmountString"] or 0))
-            except (TypeError, ValueError):
-                continue
-            owner = b.get("owner") or p.get("owner")
-            if delta <= 0 or owner not in RECIPIENTS:
-                continue
+        for owner, mint, delta in flows:
             role = "buyback" if owner in BUYBACK else "normal"
-            mint = b.get("mint")
             per[role]["count"] += 1
             per[role]["mints"][mint] += delta
             if mint == WSOL and sol_usd:
                 priced_usd += delta * sol_usd
             elif mint == USDC:
                 priced_usd += delta
-    span = (max(times) - min(times)) if times else 0
+            else:
+                unpriced_usd_mints[mint] += delta
+
+    span = (max(times) - min(times)) if len(times) > 1 else 0
     rate = (priced_usd / span) if span > 0 else 0.0
-    print(f"AMM 交易 {len(sigs)} 笔，采样窗口 {span/60:.1f} 分钟（{len(times)} 笔有时戳）")
+    print(f"命中含入账的交易 {sum(d['count'] for d in per.values())} 条，"
+          f"采样窗口 {span/60:.1f} 分钟（{len(times)} 笔有时戳）")
     for role, d in per.items():
-        total_mints = len(d["mints"])
-        top = sorted(d["mints"].items(), key=lambda x: -x[1])[:5]
-        print(f"  {role:8}: {d['count']} 笔入账，涉及 {total_mints} 种 quote 资产")
+        top = sorted(d["mints"].items(), key=lambda x: -x[1])[:6]
+        print(f"  {role:8}: {d['count']} 笔，涉及 {len(d['mints'])} 种 quote 资产")
         for m, v in top:
             tag = " (WSOL)" if m == WSOL else (" (USDC)" if m == USDC else "")
             print(f"      {str(m)[:16]}… +{v:.6f}{tag}")
     print(f"  可定价入账（WSOL×${sol_usd:.0f} + USDC）: ${priced_usd:.4f}"
           f" → 外推 ${rate*86400:,.0f}/天（±采样误差）")
+    print(f"  不可定价 quote 资产种类: {len(unpriced_usd_mints)}（只统计数量，无法估值）")
     (ROOT / "fee_flows.json").write_text(json.dumps({
         "as_of": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-        "txs": len(sigs), "span_s": span, "sol_usd": sol_usd,
+        "per_address": per_address, "unique_txs": len(todo),
+        "span_s": span, "sol_usd": sol_usd,
         "per_role": {k: {"count": v["count"],
-                         "mints": {str(m): round(x, 9) for m, x in v["mints"].items()}}
+                         "mints": {str(m): round(x, 9)
+                                   for m, x in sorted(v["mints"].items(),
+                                                      key=lambda x: -x[1])}}
                      for k, v in per.items()},
+        "unpriced_mint_count": len(unpriced_usd_mints),
         "priced_usd": round(priced_usd, 4),
         "priced_usd_per_day": round(rate * 86400, 2),
     }, ensure_ascii=False, indent=1))
@@ -269,7 +313,8 @@ def main() -> None:
     sp = sub.add_parser("scan")
     sp.add_argument("--txs", type=int, default=60)
     sp = sub.add_parser("trades")
-    sp.add_argument("--txs", type=int, default=200)
+    sp.add_argument("--per-address", type=int, default=200,
+                    help="每个收款地址取样签名数（去重后拉交易）")
     args = ap.parse_args()
     CLIENT = make_client(cli=args.rpc, rate=args.rate)
     if args.cmd == "derive":
@@ -277,7 +322,7 @@ def main() -> None:
     elif args.cmd == "scan":
         cmd_scan(args.txs, args.workers)
     elif args.cmd == "trades":
-        cmd_trades(args.txs, args.workers)
+        cmd_trades(args.per_address, args.workers)
 
 
 if __name__ == "__main__":

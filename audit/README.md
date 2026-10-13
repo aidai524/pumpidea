@@ -157,11 +157,36 @@ sharing-config）路径。
 
 ```bash
 cp .env.example .env      # 填入 ALCHEMY_RPC_URL=https://solana-mainnet.g.alchemy.com/v2/<KEY>
-python3 fee_program_probe.py --rpc "$ALCHEMY_RPC_URL" trades --txs 2000 --workers 24
+python3 fee_program_probe.py --workers 32 --rate 0.004 trades --per-address 1000
 ```
 
 `rpc.py` 是共享客户端：解析顺序 `--rpc` → `ALCHEMY_RPC_URL` → `SOLANA_RPC_URL` →
 `RPC_URL` → `.env` → 公共端点；带全局限速与重试。
+
+### 4.7 第一版链上入账（采样，2026-10-13）
+
+用付费 Alchemy RPC 扫 24 个收款地址的交易（去重），聚合 quote 资产入账：
+
+| 采样 | 去重交易 | 命中入账 | 窗口 | 可定价（WSOL/USDC） | 外推/天 | 不可定价 mint 数 |
+|---|---|---|---|---|---|---|
+| 每地址 250 笔 | 3,637 | 2,653 | 0.4 分钟 | $13.66 | ~$49k | 22 |
+| 每地址 1000 笔 | 13,102 | 12,758 | 1.7 分钟 | $88.23 | ~$75k | 29 |
+
+**读法（重要）**：两次采样同量级（$49k~$75k/天），但**仅为看板日收入的 3~4%**。
+原因不是方法错，而是：
+
+1. **可定价资产只占小头**：每笔采样只看到 WSOL/USDC 的少量入账；
+   大头沉淀在 29~31 种长尾 quote 资产（自定义交易对 / 币本位池）里，**无现成价格**；
+2. 采样窗口极短（收款地址每秒命中的交易太多）：全量需流式（Geyser/WebSocket）；
+3. 同一笔交易中 normal 与 buyback 各取一份，部分 mint 两者数值几乎相等
+   （如 `8sHq…` 257,425.596），可作为分账比例的直接证据。
+
+**结论（写进提案的第三个发现）**：
+> 即使直接读链，**没有明确的长尾 quote 资产定价政策，也算不出 USD 收入**——
+> 定价口径本身就是一个必须向团队确认的方法论问题（对应接触材料的第 4 问）。
+
+**下一步**：① 用池子储备给币本位 quote 定价；② Alchemy WebSocket/Geyser 流式跑满
+一整天；③ 把定价后的日收入接入对照页第三条腿。
 
 ---
 

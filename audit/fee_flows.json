@@ -1,55 +1,82 @@
 {
- "as_of": "2026-10-13T07:03:30Z",
- "txs": 6,
- "rows": [
-  {
-   "tx": "41Ksp4RvfRcWhnRaAB3pNBKybpZDiNH2ZphAWni4cMnpYF2aAF5NTBHmzBLNNuhQnEuExQzhghWTofVpScG6deKw",
-   "owner": "62qc2CNXwrYqQScmEdiZFFAnJR262PxWEuNQtxfafNgV",
-   "role": "normal",
-   "mint": "So11111111111111111111111111111111111111112",
-   "delta": 1.0900021152338013e-07
+ "as_of": "2026-10-13T09:36:12Z",
+ "per_address": 1000,
+ "unique_txs": 13102,
+ "span_s": 102,
+ "sol_usd": 107.2,
+ "per_role": {
+  "buyback": {
+   "count": 6588,
+   "mints": {
+    "BUcyZuJizsFGoa4rKu8HmdjoWsDCLZ7v7Qc4H4RQ7RoG": 2764011.488211993,
+    "F8MER9uGVeGf4uQTjndRTBkHvi8AetsYV7PTEt5cxRvz": 1760390.91586104,
+    "6TCLXY3Yxb2N5428Abmo9Af7c3DQYnSbkBwKMWcjk9tF": 421451.406897008,
+    "8sHqvKNMTUA8t7V3A49K52vNTXQRxR36hLzNxgLh4gc6": 257425.595991001,
+    "CAMfcAAtmdkZY6kAJHftTgMBCJTyQJn1pTSRueCrg5xb": 162219.967537001,
+    "4heTeQKoqmacrmEZpGiXXhFtFnXzJGKqdXgtZrwPx2ro": 143827.788439,
+    "6ExD5R6nKhnbcjn4RGAP8fk6CmroLhj3PSTzW1u66ym6": 113705.177622003,
+    "73iuf1CYVVqaPgH7erBKydicHFCqpPtG6ZRX9FgCSi3": 113629.714338,
+    "CA4NKCw31QhrEVeKc7xVtbFx4HxxP5xpfQM2eh3RUHzD": 92558.414006999,
+    "EN6pAJ5oLjVxAyXdYjjYP4oxLr2PiQbWoJKkUr6sEBt5": 38769.978725,
+    "6BjgJunEkaCtjmKRjHm68GXUf5LQCTsrZBw2NfSLsrAh": 32152.322407,
+    "FJNfunVeuv1dBkdWUvoSRP3VBS4J3pZxZwbbTbdqenzf": 9682.423167001,
+    "Dk1kJhPuWwc3qPRbTUb6nrq1dSvqcpn67chJE6D7uhTT": 8487.707895,
+    "FPN5sEwtxtLn8d5zRqy2wMs8oSswRk9xyQd4Lt1dpump": 1067.622265,
+    "8UFsHiZveZKKnFDhqHe93jpuuhHFJTkDp7rMzqSLpump": 1048.76957,
+    "9ZAGtSDDFPkjfr4ZfkZQuXg8SYL6rEvorruzHnDBpump": 835.901048,
+    "GxUmkAjP7oURUKuBnfCqxVFVqWpRHG1WzvRSJrxMbonk": 628.270883,
+    "FcLVD5fHEguByZfZsT4aE9NKKRiAeY8AZVe26UZRFaPu": 475.958448,
+    "8amsjSM9E8CrUSTQ3fFnkWuvoZXitqe7u4JybGBcgqwi": 144.648891,
+    "pumpCmXqMfrsAkQ5r49WcJnRayYRqmXz6ae8H7H9Dfn": 21.750161,
+    "GonHqm8qJyEKG39hH4bUcCCHpdY3RX1WwXsu5vkVvLUv": 1.589822,
+    "So11111111111111111111111111111111111111112": 0.437588017,
+    "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v": 0.19564,
+    "FoGHqMNBXT6EuC69C6cLzqcMV4zUaptYruArMg6omoon": 0.051769357,
+    "EWY4owSJYMpwN33qGDu5gGxpkQkpMJu8ZUsQJaNZG5dv": 0.01057,
+    "XPLTrL1ZH3tZJBdFWbbtrNjK9qoqZWfuhQJnXibbdfT": 0.0030148,
+    "SPCXxcqXj6e5dJDVNovHN8744zkbhM2bYudU45BimGb": 0.000274,
+    "SKHYhSjuRWHgikq8eRKbtBbpABgJSkd7ytQV14i9EQ3": 0.000258,
+    "WXMRyRZhsa19ety5erZhHg4N3xj3EVN92u94422teJp": 0.000113168,
+    "Xsc9qvGR1efVDFGLrVsmkzv3qi45LTBjeUKSPmx9qEh": 2.215e-05,
+    "A7bdiYdS5GjqGFtxf17ppRHtDKPkkRqbKtR27dxvQXaS": 1.5e-07
+   }
   },
-  {
-   "tx": "41Ksp4RvfRcWhnRaAB3pNBKybpZDiNH2ZphAWni4cMnpYF2aAF5NTBHmzBLNNuhQnEuExQzhghWTofVpScG6deKw",
-   "owner": "5YxQFdt3Tr9zJLvkFccqXVUwhdTWJQc1fFg2YPbxvxeD",
-   "role": "buyback",
-   "mint": "So11111111111111111111111111111111111111112",
-   "delta": 1.0900000002589394e-07
-  },
-  {
-   "tx": "2K3ii2DbewNqWrnvC92HC2xtByAo8NW7khX4jmUW36LwSBNsiURtc7JUF7HXAfKsAF8kVwfYoSmJ1zZorcZYqgSn",
-   "owner": "62qc2CNXwrYqQScmEdiZFFAnJR262PxWEuNQtxfafNgV",
-   "role": "normal",
-   "mint": "So11111111111111111111111111111111111111112",
-   "delta": 4.899993655271828e-08
-  },
-  {
-   "tx": "2K3ii2DbewNqWrnvC92HC2xtByAo8NW7khX4jmUW36LwSBNsiURtc7JUF7HXAfKsAF8kVwfYoSmJ1zZorcZYqgSn",
-   "owner": "5eHhjP8JaYkz83CWwvGU2uMUXefd3AazWGx4gpcuEEYD",
-   "role": "buyback",
-   "mint": "So11111111111111111111111111111111111111112",
-   "delta": 4.900000000196414e-08
-  },
-  {
-   "tx": "4uhFqRBXsf4jcjxPF1WGRUKcbodzgkLBFAJScyL7asi924LiDQZ6xdL2ZJ5zyh1sPdFMNEt8Cg4sKMkPP94d9hgo",
-   "owner": "5YxQFdt3Tr9zJLvkFccqXVUwhdTWJQc1fFg2YPbxvxeD",
-   "role": "buyback",
-   "mint": "So11111111111111111111111111111111111111112",
-   "delta": 7.000000001866624e-08
-  },
-  {
-   "tx": "4BNAx7nUYsAtcYfwiVKE5pfnYH7CrNb52bJQrYseeZZhh7vuZWRhw1CmoPLt2MHXvF5W2PrURMvdTa4k3uQgByNC",
-   "owner": "62qc2CNXwrYqQScmEdiZFFAnJR262PxWEuNQtxfafNgV",
-   "role": "normal",
-   "mint": "So11111111111111111111111111111111111111112",
-   "delta": 8.400002116104588e-08
-  },
-  {
-   "tx": "4BNAx7nUYsAtcYfwiVKE5pfnYH7CrNb52bJQrYseeZZhh7vuZWRhw1CmoPLt2MHXvF5W2PrURMvdTa4k3uQgByNC",
-   "owner": "A7hAgCzFw14fejgCp387JUJRMNyz4j89JKnhtKU8piqW",
-   "role": "buyback",
-   "mint": "So11111111111111111111111111111111111111112",
-   "delta": 8.400000001129726e-08
+  "normal": {
+   "count": 6170,
+   "mints": {
+    "BUcyZuJizsFGoa4rKu8HmdjoWsDCLZ7v7Qc4H4RQ7RoG": 2305900.833737999,
+    "F8MER9uGVeGf4uQTjndRTBkHvi8AetsYV7PTEt5cxRvz": 1527465.630497977,
+    "6TCLXY3Yxb2N5428Abmo9Af7c3DQYnSbkBwKMWcjk9tF": 369596.013485044,
+    "8sHqvKNMTUA8t7V3A49K52vNTXQRxR36hLzNxgLh4gc6": 257425.596049,
+    "CAMfcAAtmdkZY6kAJHftTgMBCJTyQJn1pTSRueCrg5xb": 162219.967607001,
+    "4heTeQKoqmacrmEZpGiXXhFtFnXzJGKqdXgtZrwPx2ro": 137409.640629,
+    "73iuf1CYVVqaPgH7erBKydicHFCqpPtG6ZRX9FgCSi3": 113629.714385999,
+    "6ExD5R6nKhnbcjn4RGAP8fk6CmroLhj3PSTzW1u66ym6": 106735.193835003,
+    "EN6pAJ5oLjVxAyXdYjjYP4oxLr2PiQbWoJKkUr6sEBt5": 38769.978744,
+    "6BjgJunEkaCtjmKRjHm68GXUf5LQCTsrZBw2NfSLsrAh": 32152.322439,
+    "Dk1kJhPuWwc3qPRbTUb6nrq1dSvqcpn67chJE6D7uhTT": 8326.748691,
+    "FPN5sEwtxtLn8d5zRqy2wMs8oSswRk9xyQd4Lt1dpump": 1067.622266,
+    "8UFsHiZveZKKnFDhqHe93jpuuhHFJTkDp7rMzqSLpump": 1048.76967,
+    "9ZAGtSDDFPkjfr4ZfkZQuXg8SYL6rEvorruzHnDBpump": 835.901155,
+    "GxUmkAjP7oURUKuBnfCqxVFVqWpRHG1WzvRSJrxMbonk": 628.270975,
+    "FcLVD5fHEguByZfZsT4aE9NKKRiAeY8AZVe26UZRFaPu": 475.958503,
+    "8amsjSM9E8CrUSTQ3fFnkWuvoZXitqe7u4JybGBcgqwi": 144.648997,
+    "pumpCmXqMfrsAkQ5r49WcJnRayYRqmXz6ae8H7H9Dfn": 21.750164,
+    "GonHqm8qJyEKG39hH4bUcCCHpdY3RX1WwXsu5vkVvLUv": 1.589824,
+    "So11111111111111111111111111111111111111112": 0.381927754,
+    "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v": 0.182705,
+    "EWY4owSJYMpwN33qGDu5gGxpkQkpMJu8ZUsQJaNZG5dv": 0.010578,
+    "XPLTrL1ZH3tZJBdFWbbtrNjK9qoqZWfuhQJnXibbdfT": 0.00301481,
+    "FoGHqMNBXT6EuC69C6cLzqcMV4zUaptYruArMg6omoon": 0.002632323,
+    "SPCXxcqXj6e5dJDVNovHN8744zkbhM2bYudU45BimGb": 0.000276,
+    "SKHYhSjuRWHgikq8eRKbtBbpABgJSkd7ytQV14i9EQ3": 0.000259,
+    "WXMRyRZhsa19ety5erZhHg4N3xj3EVN92u94422teJp": 0.000113168,
+    "Xsc9qvGR1efVDFGLrVsmkzv3qi45LTBjeUKSPmx9qEh": 1.8e-07,
+    "A7bdiYdS5GjqGFtxf17ppRHtDKPkkRqbKtR27dxvQXaS": 1.6e-07
+   }
   }
- ]
+ },
+ "unpriced_mint_count": 29,
+ "priced_usd": 88.2304,
+ "priced_usd_per_day": 74736.37
 }
