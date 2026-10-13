@@ -178,8 +178,11 @@ def _num(v):
 
 def normalize(program: str, name: str, ev: dict, sig: str, slot: int) -> dict:
     is_amm = program == AMM["address"]
+    ts = int(ev.get("timestamp") or time.time())
+    if not (1_600_000_000 <= ts <= 2_000_000_000):   # 年 2020~2033，之外视为脏数据
+        ts = int(time.time())
     row = {"signature": sig, "program": "amm" if is_amm else "curve",
-           "name": name, "slot": slot, "ts": int(ev.get("timestamp") or time.time()),
+           "name": name, "slot": slot, "ts": ts,
            "pool": ev.get("pool"), "mint": ev.get("mint"), "quote_mint": ev.get("quote_mint"),
            "quote_amount": _num(ev.get("quote_amount") or ev.get("quote_amount_in")
                                 or ev.get("quote_amount_out") or ev.get("sol_amount")),

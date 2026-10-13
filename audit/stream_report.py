@@ -105,7 +105,7 @@ def aggregate(con: sqlite3.Connection) -> dict:
                    PARTITION BY signature, name, COALESCE(pool, '')
                    ORDER BY rowid) AS rn
           FROM events
-          WHERE ts > 0 AND quote_mint IS NOT NULL
+          WHERE ts BETWEEN 1600000000 AND 2000000000 AND quote_mint IS NOT NULL
             AND name IN ({','.join('?' * len(TRADE_EVENTS))})
         )
         WHERE rn = 1
