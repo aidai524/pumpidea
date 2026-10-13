@@ -166,17 +166,28 @@ def pool_mints(pool: str) -> tuple | None:
 
 
 # ------------------------------------------------------------------ 事件落库
+SQLITE_MAX = 2 ** 63 - 1
+
+
+def _num(v):
+    """u64/i128 会超出 SQLite INTEGER；超出就用 float。"""
+    if v is None or isinstance(v, float):
+        return v
+    return int(v) if abs(v) <= SQLITE_MAX else float(v)
+
+
 def normalize(program: str, name: str, ev: dict, sig: str, slot: int) -> dict:
     is_amm = program == AMM["address"]
     row = {"signature": sig, "program": "amm" if is_amm else "curve",
            "name": name, "slot": slot, "ts": int(ev.get("timestamp") or time.time()),
            "pool": ev.get("pool"), "mint": ev.get("mint"), "quote_mint": ev.get("quote_mint"),
-           "quote_amount": ev.get("quote_amount") or ev.get("quote_amount_in")
-                             or ev.get("quote_amount_out") or ev.get("sol_amount"),
-           "protocol_fee": ev.get("protocol_fee", ev.get("fee")),
-           "creator_fee": ev.get("coin_creator_fee", ev.get("creator_fee")),
-           "buyback_fee": ev.get("buyback_fee"), "lp_fee": ev.get("lp_fee"),
-           "cashback": ev.get("cashback"), "holder_rewards": ev.get("holder_rewards"),
+           "quote_amount": _num(ev.get("quote_amount") or ev.get("quote_amount_in")
+                                or ev.get("quote_amount_out") or ev.get("sol_amount")),
+           "protocol_fee": _num(ev.get("protocol_fee", ev.get("fee"))),
+           "creator_fee": _num(ev.get("coin_creator_fee", ev.get("creator_fee"))),
+           "buyback_fee": _num(ev.get("buyback_fee")), "lp_fee": _num(ev.get("lp_fee")),
+           "cashback": _num(ev.get("cashback")),
+           "holder_rewards": _num(ev.get("holder_rewards")),
            "fields": json.dumps({k: v for k, v in ev.items() if not isinstance(v, dict)},
                                 ensure_ascii=False)}
     if is_amm and row["pool"]:
@@ -307,7 +318,8 @@ def report() -> None:
                                  sum(protocol_fee), sum(creator_fee),
                                  sum(buyback_fee), sum(lp_fee), sum(cashback),
                                  sum(holder_rewards)
-                          FROM events GROUP BY program, name, quote_mint
+                          FROM events WHERE ts > 0
+                          GROUP BY program, name, quote_mint
                           ORDER BY count(*) DESC LIMIT 30""").fetchall()
     print(f"{'program':7} {'event':22} {'quote_mint':14} {'n':>7} "
           f"{'protocol':>14} {'creator':>14} {'buyback':>14}")

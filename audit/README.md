@@ -252,9 +252,14 @@ Anchor 事件（87/87 事件判别码 = `sha256("event:"+name)[:8]` 校验通过
 - 落 `runtime/stream.sqlite3`（`events` + `pools`），断线自动重连。
 
 ```bash
-../.venv/bin/python stream_collector.py                 # 一直跑
-../.venv/bin/python stream_collector.py --report        # 汇总
+./run_stream.sh          # systemd 用户服务常驻（重启/退出会话都不影响）
+./run_stream.sh status   # 查看状态
+./run_stream.sh stop     # 停止
+./run_stream.sh --report # 直接汇总（或 ../.venv/bin/python stream_collector.py --report）
 ```
+
+> 踩过的坑：直接 `nohup &` 起的进程会被会话清理杀掉；大整数（u64/i128 > 2^63）
+> 直写 SQLite 会 `OverflowError`——现在超大值自动转 float，服务带 `Restart=on-failure`。
 
 实测速率：约 20 事件/秒（≈170 万条/天）。跑满一天后可出第一条**链上日收入曲线**
 （协议/创作者/回购/ LP/返现/持币奖励六条线），并与看板、DefiLlama 并列。
