@@ -150,8 +150,18 @@
 `fee-program-global` = `CHqnuTkj6sXDFknM652aEFPECZh9qVsBXWkhPohmV9dA`，链上存在。
 
 **到「一手收入数字」还差**：① 匹配部署版本的 ABI（问他们或对齐 SDK 历史版）；
-② 付费 RPC/Geyser 全量扫；③ quote 资产定价层；④ creator fee（creator-vault /
+② 全量数据源（已支持付费 RPC，见下）；③ quote 资产定价层；④ creator fee（creator-vault /
 sharing-config）路径。
+
+**RPC 配置**（付费端点会自动优先使用）：
+
+```bash
+cp .env.example .env      # 填入 ALCHEMY_RPC_URL=https://solana-mainnet.g.alchemy.com/v2/<KEY>
+python3 fee_program_probe.py --rpc "$ALCHEMY_RPC_URL" trades --txs 2000 --workers 24
+```
+
+`rpc.py` 是共享客户端：解析顺序 `--rpc` → `ALCHEMY_RPC_URL` → `SOLANA_RPC_URL` →
+`RPC_URL` → `.env` → 公共端点；带全局限速与重试。
 
 ---
 

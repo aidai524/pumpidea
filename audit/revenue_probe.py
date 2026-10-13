@@ -19,16 +19,14 @@ import argparse
 import concurrent.futures as cf
 import json
 import pathlib
-import random
-import threading
 import time
-import urllib.error
-import urllib.request
 from collections import defaultdict
+
+from rpc import make_client
 
 ROOT = pathlib.Path(__file__).resolve().parent
 OUT = ROOT / "revenue_probe.json"
-RPCS = ["https://api.mainnet-beta.solana.com", "https://solana-rpc.publicnode.com"]
+CLIENT = None
 
 NORMAL = ["62qc2CNXwrYqQScmEdiZFFAnJR262PxWEuNQtxfafNgV",
           "7VtfL8fvgNfhz17qKRMjzQEXgbdpnHHHQRh54R9jP2RJ",
@@ -56,40 +54,8 @@ BUYBACK = ["5YxQFdt3Tr9zJLvkFccqXVUwhdTWJQc1fFg2YPbxvxeD",
            "A7hAgCzFw14fejgCp387JUJRMNyz4j89JKnhtKU8piqW"]
 GROUPS = {"normal": NORMAL, "mayhem": MAYHEM, "buyback": BUYBACK}
 
-_lock = threading.Lock()
-_rr = [0]
-_last = [0.0]
-MIN_INTERVAL = 0.12  # 全局请求间隔（≈8 req/s）
-
-
 def rpc(method: str, params: list):
-    for attempt in range(5):
-        with _lock:
-            wait = MIN_INTERVAL - (time.time() - _last[0])
-            if wait > 0:
-                time.sleep(wait)
-            endpoint = RPCS[_rr[0] % len(RPCS)]
-            _rr[0] += 1
-            _last[0] = time.time()
-        body = json.dumps({"jsonrpc": "2.0", "id": 1, "method": method,
-                           "params": params}).encode()
-        req = urllib.request.Request(endpoint, data=body,
-                                     headers={"Content-Type": "application/json"})
-        try:
-            with urllib.request.urlopen(req, timeout=30) as r:
-                d = json.loads(r.read())
-            if "error" in d:
-                msg = str(d["error"])
-                if "429" in msg or "rate" in msg.lower():
-                    time.sleep(1.5 * (attempt + 1))
-                    continue
-                raise RuntimeError(msg)
-            return d["result"]
-        except (urllib.error.URLError, TimeoutError) as exc:
-            if attempt == 4:
-                raise
-            time.sleep(1.0 * (attempt + 1) + random.random())
-    raise RuntimeError("rpc exhausted")
+    return CLIENT.call(method, params)
 
 
 def balance(addr: str) -> float:
@@ -187,9 +153,13 @@ def main() -> None:
     ap.add_argument("--snapshot", action="store_true", help="只读余额")
     ap.add_argument("--hours", type=float, default=6.0)
     ap.add_argument("--sample", type=int, default=80, help="每地址最多采样交易数")
-    ap.add_argument("--workers", type=int, default=4)
+    ap.add_argument("--workers", type=int, default=8)
+    ap.add_argument("--rpc", help="覆盖 RPC 端点（默认读 ALCHEMY_RPC_URL / .env）")
+    ap.add_argument("--rate", type=float, default=0.02, help="最小请求间隔秒")
     ap.add_argument("--addresses", choices=["all", *GROUPS], default="all")
     args = ap.parse_args()
+    global CLIENT
+    CLIENT = make_client(cli=args.rpc, rate=args.rate)
 
     groups = GROUPS if args.addresses == "all" else {args.addresses: GROUPS[args.addresses]}
     result: dict = {"as_of": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
