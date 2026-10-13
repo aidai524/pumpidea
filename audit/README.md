@@ -238,3 +238,23 @@ python3 revenue_probe.py --snapshot    # 直读 24 个官方收费地址余额�
 - HF `loopholetape/pumpfun-launches`（截至 2026-10-03 的 34 天）
 - CoinGecko SOL 价格：$109.35（2026-10-11）
 - 既往研究：`pumpfun/report.md`、`pumpfun/analysis/facts.json`
+
+### 4.8 流式采集（2026-10-13 起，跑 24h）
+
+`stream_collector.py`：Alchemy WebSocket `logsSubscribe` 同时订阅 **pump curve**
+（`6EF8rrec…`）与 **pump AMM**（`pAMMBay6…`）两个程序，解析 `Program data:` 里的
+Anchor 事件（87/87 事件判别码 = `sha256("event:"+name)[:8]` 校验通过）：
+
+- 每条 `BuyEvent` / `SellEvent` / `TradeEvent` 自带
+  `protocol_fee / creator_fee / buyback_fee / lp_fee / cashback / holder_rewards`
+  与 `timestamp`、`pool`；
+- 池子→mint 映射懒加载（`Pool` 账户解码），采集 1 分钟内 96%+ 事件有 quote_mint；
+- 落 `runtime/stream.sqlite3`（`events` + `pools`），断线自动重连。
+
+```bash
+../.venv/bin/python stream_collector.py                 # 一直跑
+../.venv/bin/python stream_collector.py --report        # 汇总
+```
+
+实测速率：约 20 事件/秒（≈170 万条/天）。跑满一天后可出第一条**链上日收入曲线**
+（协议/创作者/回购/ LP/返现/持币奖励六条线），并与看板、DefiLlama 并列。
