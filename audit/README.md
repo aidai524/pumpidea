@@ -185,8 +185,21 @@ python3 fee_program_probe.py --workers 32 --rate 0.004 trades --per-address 1000
 > 即使直接读链，**没有明确的长尾 quote 资产定价政策，也算不出 USD 收入**——
 > 定价口径本身就是一个必须向团队确认的方法论问题（对应接触材料的第 4 问）。
 
-**下一步**：① 用池子储备给币本位 quote 定价；② Alchemy WebSocket/Geyser 流式跑满
-一整天；③ 把定价后的日收入接入对照页第三条腿。
+**定价后的第一版结果**（`price_flows.py`，DexScreener 定价全部 60 种 mint）：
+
+| 角色 | 采样入账 USD | 占样本 |
+|---|---|---|
+| normal（协议费） | $209.45 | 47% |
+| buyback（回购） | $240.18 | 53% |
+| **合计** | **$449.63 / 1.7 分钟** | → **外推 $380,861/天** |
+
+仍然低于看板的 ~$1.9M/天（约 20%），已知原因：
+1. **采样窗口只有 102 秒**，且不是全天均匀采样（收款地址最近交易集中在某一时段）；
+2. **只覆盖 24 个公开收款地址**：creator fee、social/donation PDA 等其他收入线不在内；
+3. 只统计 token 账户变化，未含可能的原生 SOL 入账。
+
+**下一步**：① Alchemy WebSocket（`logsSubscribe`）流式跑满一整天，彻底消除采样偏差；
+② 加入 creator fee / social / donation 三条线；③ 定价后的日收入接入对照页第三条腿。
 
 ---
 

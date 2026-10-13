@@ -1,0 +1,121 @@
+{
+ "as_of": "2026-10-13T09:37:15Z",
+ "source_flows": "fee_flows.json",
+ "span_s": 102,
+ "sol_usd": 107.2,
+ "total_usd": 449.63,
+ "per_day_usd": 380861.0,
+ "by_role": {
+  "buyback": {
+   "usd": 240.1804517863679,
+   "priced_mints": 31,
+   "unpriced_mints": 0,
+   "top": [
+    {
+     "mint": "4heTeQKoqmacrmEZpGiXXhFtFnXzJGKqdXgtZrwPx2ro",
+     "amount": 143827.788439,
+     "price_usd": 0.0003643,
+     "usd": 52.3964633283277
+    },
+    {
+     "mint": "So11111111111111111111111111111111111111112",
+     "amount": 0.437588017,
+     "price_usd": 107.2,
+     "usd": 46.9094354224
+    },
+    {
+     "mint": "BUcyZuJizsFGoa4rKu8HmdjoWsDCLZ7v7Qc4H4RQ7RoG",
+     "amount": 2764011.488211993,
+     "price_usd": 1.1e-05,
+     "usd": 30.404126370331923
+    },
+    {
+     "mint": "6TCLXY3Yxb2N5428Abmo9Af7c3DQYnSbkBwKMWcjk9tF",
+     "amount": 421451.406897008,
+     "price_usd": 7.091e-05,
+     "usd": 29.885119263066837
+    },
+    {
+     "mint": "F8MER9uGVeGf4uQTjndRTBkHvi8AetsYV7PTEt5cxRvz",
+     "amount": 1760390.91586104,
+     "price_usd": 1.68e-05,
+     "usd": 29.574567386465468
+    },
+    {
+     "mint": "6ExD5R6nKhnbcjn4RGAP8fk6CmroLhj3PSTzW1u66ym6",
+     "amount": 113705.177622003,
+     "price_usd": 0.0001307,
+     "usd": 14.861266715195793
+    },
+    {
+     "mint": "73iuf1CYVVqaPgH7erBKydicHFCqpPtG6ZRX9FgCSi3",
+     "amount": 113629.714338,
+     "price_usd": 0.0001174,
+     "usd": 13.3401284632812
+    },
+    {
+     "mint": "CA4NKCw31QhrEVeKc7xVtbFx4HxxP5xpfQM2eh3RUHzD",
+     "amount": 92558.414006999,
+     "price_usd": 8.327e-05,
+     "usd": 7.7073391343628055
+    }
+   ]
+  },
+  "normal": {
+   "usd": 209.44681534732007,
+   "priced_mints": 29,
+   "unpriced_mints": 0,
+   "top": [
+    {
+     "mint": "4heTeQKoqmacrmEZpGiXXhFtFnXzJGKqdXgtZrwPx2ro",
+     "amount": 137409.640629,
+     "price_usd": 0.0003643,
+     "usd": 50.058332081144705
+    },
+    {
+     "mint": "So11111111111111111111111111111111111111112",
+     "amount": 0.381927754,
+     "price_usd": 107.2,
+     "usd": 40.9426552288
+    },
+    {
+     "mint": "6TCLXY3Yxb2N5428Abmo9Af7c3DQYnSbkBwKMWcjk9tF",
+     "amount": 369596.013485044,
+     "price_usd": 7.091e-05,
+     "usd": 26.20805331622447
+    },
+    {
+     "mint": "F8MER9uGVeGf4uQTjndRTBkHvi8AetsYV7PTEt5cxRvz",
+     "amount": 1527465.630497977,
+     "price_usd": 1.68e-05,
+     "usd": 25.66142259236601
+    },
+    {
+     "mint": "BUcyZuJizsFGoa4rKu8HmdjoWsDCLZ7v7Qc4H4RQ7RoG",
+     "amount": 2305900.833737999,
+     "price_usd": 1.1e-05,
+     "usd": 25.36490917111799
+    },
+    {
+     "mint": "6ExD5R6nKhnbcjn4RGAP8fk6CmroLhj3PSTzW1u66ym6",
+     "amount": 106735.193835003,
+     "price_usd": 0.0001307,
+     "usd": 13.950289834234892
+    },
+    {
+     "mint": "73iuf1CYVVqaPgH7erBKydicHFCqpPtG6ZRX9FgCSi3",
+     "amount": 113629.714385999,
+     "price_usd": 0.0001174,
+     "usd": 13.340128468916282
+    },
+    {
+     "mint": "8sHqvKNMTUA8t7V3A49K52vNTXQRxR36hLzNxgLh4gc6",
+     "amount": 257425.596049,
+     "price_usd": 1.455e-05,
+     "usd": 3.74554242251295
+    }
+   ]
+  }
+ },
+ "price_cache": "dexscreener_prices_2026-10-13.json"
+}
