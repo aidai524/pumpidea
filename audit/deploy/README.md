@@ -55,6 +55,27 @@ rsync -av --progress user@VPS:/opt/pumpfun-stream/runtime/stream.sqlite3 \
 事件表里 `fields` JSON 列占空间大头（实测 ~18GB/天）。服务器只存分析需要的列
 （六条费用线、pool/mint、时间戳），体积可降一个量级；原始 JSON 需要时可随时重采。
 
+## Alpine / OpenRC（LXC 容器）
+
+如果 VPS 是 Alpine（无 systemd），用 `install-alpine.sh`：
+
+```bash
+# 本地：先装 rsync（服务器上也需要，首次手动 apk add rsync sqlite python3 py3-pip）
+rsync -a --exclude runtime --exclude .venv \
+      -e "ssh -i ~/.ssh/id_ed25519" ./ root@VPS:/tmp/pumpfun-stream/
+
+# VPS 上：
+sh /tmp/pumpfun-stream/deploy/install-alpine.sh /opt/pumpfun-stream
+rc-update add pumpfun-stream default && rc-service pumpfun-stream start
+rc-service pumpfun-stream status && tail -f /var/log/pumpfun-stream.log
+```
+
+OpenRC 服务带 `supervisor=supervise-daemon` + `respawn_delay=5`（崩溃自动拉起），
+保留策略在 `/etc/periodic/daily/pumpfun-retention`（busybox crond 默认执行）。
+
+> 踩过的坑：`.env` 最后一行若没有换行符，追加 `PULSE_STORE_FIELDS=0` 会粘到
+> `ALCHEMY_RPC_URL` 的值后面 → URL 被污染 → Alchemy 返回 401。脚本已做换行保护。
+
 ## 安全
 
 - `.env` 权限 600，属主 `pumpstream`；**不要进 git**。
