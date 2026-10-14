@@ -146,10 +146,19 @@ def main() -> None:
         F["combined_model"][target] = fit_eval(
             clean[clean["day"] < cut2], clean[clean["day"] >= cut2], feats, target)
 
-    # ---- 导出可部署模型（rug 为主，组合特征）
-    m = F["combined_model"]["rugged"]["model"]
-    m["target"] = "rug_within_300s"
-    (ROOT / "model.json").write_text(json.dumps(m, ensure_ascii=False, indent=1))
+    # ---- 导出可部署模型（rug + graduation）
+    import time as _t
+    payload = {
+        "version": "risk-" + _t.strftime("%Y-%m-%d"),
+        "trained_at": _t.strftime("%Y-%m-%dT%H:%M:%SZ", _t.gmtime()),
+        "features": F["combined_model"]["rugged"]["model"]["features"],
+        "rug": F["combined_model"]["rugged"]["model"],
+        "graduation": F["combined_model"]["graduated"]["model"],
+        "metrics": {t: {k: F["combined_model"][t][k]
+                        for k in ("auc", "ap", "brier", "base_rate_eval")}
+                    for t in ("rugged", "graduated")},
+    }
+    (ROOT / "model.json").write_text(json.dumps(payload, ensure_ascii=False, indent=1))
 
     OUT.write_text(json.dumps(F, ensure_ascii=False, indent=1))
     print(f"写了 {OUT} 和 {ROOT/'model.json'}")

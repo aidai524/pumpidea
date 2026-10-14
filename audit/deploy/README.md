@@ -123,4 +123,16 @@ sh /opt/pumpfun-stream/deploy/install-web-alpine.sh
    docker exec plane-app-proxy-1 caddy reload  --config /etc/caddy/Caddyfile --adapter caddyfile
    ```
 4. 访问 `https://<SITE_ADDRESS>/pumpfun/`（现有站点的自动 HTTPS 一并生效）。
+
+**风险评分服务（③ 线）**同理，另加一段：
+
+```caddyfile
+redir /risk /risk/ permanent
+handle_path /risk/* {
+    reverse_proxy 172.18.0.1:8090
+}
+```
+
+服务端部署：`sh deploy/install-risk-alpine.sh`（需要先把 `risk/` rsync 到 `/opt/pumpfun-stream/risk/`，
+含本地生成的 `history.sqlite3`）。访问 `https://<SITE_ADDRESS>/risk/` 是演示页。
 5. **回滚**：恢复备份的 Caddyfile 再 reload；Plane 升级若覆盖该文件，按上面重加。
