@@ -99,3 +99,28 @@ sh /opt/pumpfun-stream/deploy/install-web-alpine.sh
 
 > 加密提醒：Basic Auth 走 HTTP 时凭据是明文（仅适合临时演示）。要长期用请加域名 +
 > TLS，或只在 SSH 隧道里访问：`ssh -L 8080:127.0.0.1:8080 root@VPS`。
+
+
+## 挂到现有 Caddy 反代下（走 80/443 + HTTPS）
+
+如果服务器的 80/443 已被别的应用占用（例如 Plane 自带 Caddy），**不要抢端口**，
+往它的 Caddyfile 加一条路径路由即可（以 Plane 为例，实测通过）：
+
+1. Caddyfile 在宿主机 `/root/plane-selfhost/plane-app/Caddyfile.ai`
+   （只读挂载进 `plane-app-proxy-1` 容器）；先备份。
+2. 在 `reverse_proxy /* web:3000` **之前**插入：
+   ```caddyfile
+   redir /pumpfun /pumpfun/ permanent
+   handle_path /pumpfun/* {
+       reverse_proxy 172.18.0.1:8080   # docker 网关 IP → 宿主机 8080
+   }
+   ```
+   （`handle_path` 优先级高于 catch-all 的 `reverse_proxy /*`；172.18.0.1 用
+   `docker network inspect <net> -f '{{(index .IPAM.Config 0).Gateway}}'` 查。）
+3. 校验 + 热加载（不重启容器、不断服务）：
+   ```bash
+   docker exec plane-app-proxy-1 caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
+   docker exec plane-app-proxy-1 caddy reload  --config /etc/caddy/Caddyfile --adapter caddyfile
+   ```
+4. 访问 `https://<SITE_ADDRESS>/pumpfun/`（现有站点的自动 HTTPS 一并生效）。
+5. **回滚**：恢复备份的 Caddyfile 再 reload；Plane 升级若覆盖该文件，按上面重加。
