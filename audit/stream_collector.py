@@ -59,7 +59,9 @@ CREATE TABLE IF NOT EXISTS events(
   pool TEXT, mint TEXT, quote_mint TEXT, quote_amount INTEGER,
   protocol_fee INTEGER, creator_fee INTEGER, buyback_fee INTEGER,
   lp_fee INTEGER, cashback INTEGER, holder_rewards INTEGER, fields TEXT,
-  collected_at INTEGER
+  collected_at INTEGER,
+  creator TEXT, user TEXT, is_buy INTEGER, sol_amount INTEGER,
+  real_quote_reserves INTEGER
 );
 CREATE INDEX IF NOT EXISTS idx_events_ts ON events(ts);
 CREATE TABLE IF NOT EXISTS pools(
@@ -192,6 +194,11 @@ def normalize(program: str, name: str, ev: dict, sig: str, slot: int) -> dict:
            "creator_fee": _num(ev.get("coin_creator_fee", ev.get("creator_fee"))),
            "buyback_fee": _num(ev.get("buyback_fee")), "lp_fee": _num(ev.get("lp_fee")),
            "cashback": _num(ev.get("cashback")),
+           "creator": ev.get("creator"), "user": ev.get("user"),
+           "is_buy": (1 if ev.get("is_buy") else 0) if "is_buy" in ev else None,
+           "sol_amount": _num(ev.get("sol_amount")),
+           "real_quote_reserves": _num(ev.get("real_quote_reserves")
+                                       or ev.get("real_sol_reserves")),
            "holder_rewards": _num(ev.get("holder_rewards")),
            "fields": (json.dumps({k: v for k, v in ev.items()
                                   if not isinstance(v, dict)}, ensure_ascii=False)
@@ -234,10 +241,12 @@ def flush(con: sqlite3.Connection, pending: list) -> None:
     con.executemany(
         """INSERT INTO events(signature,program,name,slot,ts,pool,mint,quote_mint,
              quote_amount,protocol_fee,creator_fee,buyback_fee,lp_fee,cashback,
-             holder_rewards,fields,collected_at)
+             holder_rewards,fields,collected_at,
+             creator,user,is_buy,sol_amount,real_quote_reserves)
            VALUES(:signature,:program,:name,:slot,:ts,:pool,:mint,:quote_mint,
              :quote_amount,:protocol_fee,:creator_fee,:buyback_fee,:lp_fee,:cashback,
-             :holder_rewards,:fields,:collected_at)""",
+             :holder_rewards,:fields,:collected_at,
+             :creator,:user,:is_buy,:sol_amount,:real_quote_reserves)""",
         [{**r, "collected_at": int(time.time())} for r in pending])
     for r in pending:
         if r["pool"] and r["pool"] in POOL_CACHE:
@@ -265,6 +274,12 @@ async def collector(minutes: float, log_every: int) -> None:
     RUNTIME.mkdir(parents=True, exist_ok=True)
     con = sqlite3.connect(DB)
     con.executescript(SCHEMA)
+    have = {r[1] for r in con.execute("PRAGMA table_info(events)")}
+    for col, typ in (("creator", "TEXT"), ("user", "TEXT"), ("is_buy", "INTEGER"),
+                     ("sol_amount", "INTEGER"), ("real_quote_reserves", "INTEGER")):
+        if col not in have:
+            con.execute(f"ALTER TABLE events ADD COLUMN {col} {typ}")
+            print(f"migrate: +{col}", flush=True)
     con.commit()
     pending: list = []
     stop_at = time.time() + minutes * 60 if minutes else 0

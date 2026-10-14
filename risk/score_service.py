@@ -24,6 +24,7 @@ import time
 import urllib.parse
 
 ROOT = pathlib.Path(__file__).resolve().parent
+STREAM_HISTORY = ROOT / "stream_history.sqlite3"
 sys.path.insert(0, str(ROOT))
 from chain import Chain  # noqa: E402
 from score import explain, score  # noqa: E402
@@ -42,18 +43,35 @@ class Scorer:
         self.db.row_factory = sqlite3.Row
 
     def history(self, creator: str) -> dict:
+        """数据集历史 + 实时流回写历史（后者每次请求读，支持热更新）。"""
+        n = resolved = rugs = grads = 0
         row = self.db.execute(
-            "SELECT n, resolved, rugs, grads, rug_rate, grad_rate, last_rug_t0 "
-            "FROM creators WHERE creator=?", (creator,)).fetchone()
-        if not row:
+            "SELECT n, resolved, rugs, grads FROM creators WHERE creator=?",
+            (creator,)).fetchone()
+        if row:
+            n, resolved, rugs, grads = row["n"], row["resolved"], row["rugs"], row["grads"]
+        src = "dataset"
+        if STREAM_HISTORY.exists():
+            try:
+                s = sqlite3.connect(f"file:{STREAM_HISTORY}?mode=ro", uri=True, timeout=5)
+                r = s.execute("SELECT n, resolved, rugs, grads FROM creators_stream "
+                              "WHERE creator=?", (creator,)).fetchone()
+                s.close()
+                if r:
+                    n, resolved, rugs, grads = (n + r[0], resolved + r[1],
+                                                rugs + r[2], grads + r[3])
+                    src = "dataset+stream"
+            except Exception:  # noqa: BLE001
+                pass
+        if not n:
             return {"prior_n": 0, "prior_resolved": 0, "prior_rug_rate": 0.0,
-                    "prior_grad_rate": 0.0, "has_history": 0}
-        r = dict(row)
-        return {"prior_n": r["n"], "prior_resolved": r["resolved"],
-                "prior_rug_rate": r["rug_rate"] or 0.0,
-                "prior_grad_rate": r["grad_rate"] or 0.0,
-                "has_history": 1 if r["n"] else 0,
-                "known_rugs": r["rugs"], "known_grads": r["grads"]}
+                    "prior_grad_rate": 0.0, "has_history": 0,
+                    "history_source": "none"}
+        return {"prior_n": n, "prior_resolved": resolved,
+                "prior_rug_rate": (rugs / resolved) if resolved else 0.0,
+                "prior_grad_rate": (grads / resolved) if resolved else 0.0,
+                "has_history": 1, "known_rugs": rugs, "known_grads": grads,
+                "history_source": src}
 
     def snapshot(self, mint: str) -> dict:
         now = time.time()
@@ -73,12 +91,18 @@ class Scorer:
         hist = self.history(creator)
         feats = {**hist, "dev_share": snap.get("dev_share"),
                  "f10_rs": snap.get("f10_rs")}
-        # 冷启动里依赖交易流的字段暂无在线来源 → 缺失，模型按均值处理
-        for k in ("dev_buy_sol", "f10_insider_share", "f10_bundle_wallets", "f10_n_buys"):
-            feats.setdefault(k, None)
+        # 早期特征：优先实时流数据库（同机），缺失则按均值
+        for k in ("dev_buy_sol", "f10_insider_share",
+                  "f10_bundle_wallets", "f10_n_buys"):
+            v = snap.get(k)
+            feats[k] = v if v is not None else None
+        early = snap.get("early") or {}
+        early_ok = bool(early.get("ok"))
         rug = score(MODELS["rug"], feats)
         grad = score(MODELS["graduation"], feats)
         flags = []
+        flags.append("early_stream" if early.get("source") == "stream" else
+                     ("early_rpc" if early_ok else "early_missing"))
         if not hist["has_history"]:
             flags.append("no_history")
         if (snap.get("dev_share") or 0) >= 0.10:
@@ -100,8 +124,14 @@ class Scorer:
             "inputs": {"dev_share": None if feats["dev_share"] is None
                        else round(feats["dev_share"], 5),
                        "curve_sol": round(feats["f10_rs"] or 0, 3),
+                       "dev_buy_sol": feats["dev_buy_sol"],
+                       "n_buys_10s": feats["f10_n_buys"],
+                       "bundle_wallets": feats["f10_bundle_wallets"],
+                       "insider_share": (None if feats["f10_insider_share"] is None
+                                         else round(feats["f10_insider_share"], 4)),
                        **{k: hist[k] for k in ("prior_n", "prior_resolved",
-                                               "prior_rug_rate")}},
+                                               "prior_rug_rate")},
+                       "history_source": hist.get("history_source")},
             "curve": {"layout": snap["curve"]["layout"],
                       "real_quote_reserves_sol": round(feats["f10_rs"] or 0, 3),
                       "token_total_supply": snap["curve"]["token_total_supply"],
@@ -143,8 +173,11 @@ async function go(){{
       <div class="big" style="color:${{d.p_rug_300s>0.5?'#ff4d6d':'#22c55e'}}">${{(d.p_rug_300s*100).toFixed(1)}}%</div>
       <div class="sub">300 秒内跑路概率（${{d.model_version}}）· 毕业概率 ${{(d.p_graduation*100).toFixed(1)}}%</div>
       <p>${{flags||'<span class="flag ok">no flags</span>'}}</p>
-      <table><tr><th>曲线储备</th><th>dev_share</th><th>历史发币</th><th>历史跑路率</th></tr>
+      <table><tr><th>曲线储备</th><th>dev_share</th><th>dev 首买</th><th>10s 买数</th>
+      <th>捆绑钱包</th><th>内部人占比</th><th>历史发币</th><th>历史跑路率</th></tr>
       <tr><td>${{d.curve.real_quote_reserves_sol}} SOL</td><td>${{d.inputs.dev_share}}</td>
+      <td>${{d.inputs.dev_buy_sol}}</td><td>${{d.inputs.n_buys_10s}}</td>
+      <td>${{d.inputs.bundle_wallets}}</td><td>${{d.inputs.insider_share}}</td>
       <td>${{d.inputs.prior_n}}</td><td>${{d.inputs.prior_rug_rate}}</td></tr></table>
       <table><tr><th>贡献因子</th><th>值</th><th>系数×z</th></tr>${{factors}}</table>
       <p class="muted">creator ${{d.creator}}</p></div>`;

@@ -123,3 +123,26 @@ cd pumpfun/risk
 ../.venv/bin/python train_validate.py     # → facts.json + model.json
 ../.venv/bin/python score.py --features '{"dev_share":0.05, ...}'
 ```
+
+---
+
+## 7. 在线服务（已部署，2026-10-14）
+
+```
+https://team.stableflow.ai/risk/          # 演示页（Basic Auth 同报表页）
+https://team.stableflow.ai/risk/score/{mint}   # JSON API
+```
+
+- `score_service.py`（OpenRC `pumpfun-risk`，端口 8090，Caddy `/risk/*` 反代）
+- **冷启动特征已在线补齐**（对齐数据集口径的近似）：
+  - 数据来源 1：**同机实时流数据库**（毫秒级，`early_stream`）——采集器新增
+    `creator/user/is_buy/sol_amount/real_quote_reserves` 列（旧库自动 ALTER 迁移）；
+  - 数据来源 2：RPC 兜底（创建交易 + 最早若干交易 + 前 20 大持有人）；
+  - 字段：`dev_buy_sol`、`f10_n_buys`、`f10_bundle_wallets`、`f10_rs`、
+    `f10_insider_share`、`dev_share`。
+- **创建者历史热更新**：`update_history_from_stream.py` 每 15 分钟扫描成熟 mint
+  （≥1 小时），按简化规则给出 `graduated_like`（峰值 ≥85 SOL）/
+  `rug_like`（dev 300s 内卖出或跌破峰值 25%），写入 `stream_history.sqlite3`；
+  评分时与数据集历史合并（`history_source: dataset+stream`）。
+- 已知边界：迁移前的历史事件行缺 `creator` 列（覆盖随时间增长）；
+  outcome 规则是简化版；在线概率尚未做回测校准。
