@@ -1,21 +1,22 @@
 #!/usr/bin/env python3
-"""汇总流式费用事件：按天 × quote 资产聚合六条费用线 → 定价 → 日收入曲线。
+"""汇总流式费用事件：日/小时 × quote 资产 → 定价 → 双口径报告（JSON + CSV）。
 
-数据源：runtime/stream.sqlite3（stream_collector.py 采集）。
-价格：原生 SOL/WSOL → CoinGecko；USDC → 1；其他 → DexScreener（带缓存）。
-精度：原生 SOL 与 WSOL 9 位、USDC 6 位、其他从链上 getMint 取 decimals（缓存）。
+定价策略（为小时级任务优化）：
+  - 持久缓存 data/price_cache.json / decimals_cache.json（mint 级，价格 24h 过期）
+  - 只给事件数 top-N 的 mint 定价（默认 600），长尾记为 unpriced
+  - 并发抓取（默认 8 线程 + 全局限速）
 
-用法：
-  python3 stream_report.py                 # 出日报表
-  python3 stream_report.py --compare       # 附表与 DefiLlama 对比
-  python3 stream_report.py --top 15        # 展示 top 资产
+口径：all = 全部可定价；liq = 最优交易对流动性 ≥ min_liquidity。
 """
 from __future__ import annotations
 
 import argparse
+import concurrent.futures as cf
+import csv
 import json
 import pathlib
 import sqlite3
+import threading
 import time
 import urllib.request
 from collections import defaultdict
@@ -24,18 +25,23 @@ from rpc import make_client
 
 ROOT = pathlib.Path(__file__).resolve().parent
 DB = ROOT / "runtime" / "stream.sqlite3"
-TODAY = time.strftime("%Y-%m-%d")
-PRICE_CACHE = ROOT / "data" / f"stream_prices_{TODAY}.json"
-DEC_CACHE = ROOT / "data" / f"stream_decimals_{TODAY}.json"
+PRICE_CACHE = ROOT / "data" / "price_cache.json"
+DEC_CACHE = ROOT / "data" / "decimals_cache.json"
+PRICE_TTL = 86400
 
 NATIVE = "11111111111111111111111111111111"
 WSOL = "So11111111111111111111111111111111111111112"
 USDC = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
+FIXED = {NATIVE, WSOL, USDC}
 LINES = ["protocol_fee", "creator_fee", "buyback_fee", "lp_fee",
          "cashback", "holder_rewards"]
 TRADE_EVENTS = ("BuyEvent", "SellEvent", "TradeEvent")
-
+TS_MIN, TS_MAX = 1_600_000_000, 2_000_000_000
 HTTP = None
+PRICES: dict[str, dict] = {}
+DECS: dict[str, int] = {}
+_lock = threading.Lock()
+_last_req = [0.0]
 
 
 def get_json(url: str, timeout: int = 20) -> dict | None:
@@ -55,11 +61,15 @@ def sol_price() -> float:
         return 0.0
 
 
-def dex_price(mint: str, cache: dict) -> dict:
-    """返回 {"price": float|None, "liq": float|None}；缓存同结构。"""
-    if mint in cache:
-        v = cache[mint]
-        return v if isinstance(v, dict) else {"price": v, "liq": None}
+def _throttle(rate: float) -> None:
+    with _lock:
+        wait = rate - (time.time() - _last_req[0])
+        if wait > 0:
+            time.sleep(wait)
+        _last_req[0] = time.time()
+
+
+def fetch_price(mint: str) -> dict:
     d = get_json(f"https://api.dexscreener.com/latest/dex/tokens/{mint}")
     out = {"price": None, "liq": None}
     if d and d.get("pairs"):
@@ -67,118 +77,167 @@ def dex_price(mint: str, cache: dict) -> dict:
         try:
             out["price"] = float(best["priceUsd"])
         except (KeyError, TypeError, ValueError):
-            out["price"] = None
+            pass
         try:
             out["liq"] = float((best.get("liquidity") or {}).get("usd") or 0)
         except (TypeError, ValueError):
-            out["liq"] = None
-    cache[mint] = out
-    time.sleep(0.25)
+            pass
     return out
 
 
-def mint_decimals(mint: str, cache: dict) -> int:
-    if mint in cache:
-        return cache[mint]
-    dec = 9
-    # 注意：Alchemy 不支持 getMint（400），用 getAccountInfo(jsonParsed)
+def fetch_decimals(mint: str) -> int:
     res = HTTP.call("getAccountInfo", [mint, {"encoding": "jsonParsed"}])
     try:
-        dec = int(res["value"]["data"]["parsed"]["info"]["decimals"])
+        return int(res["value"]["data"]["parsed"]["info"]["decimals"])
     except Exception:  # noqa: BLE001
-        pass
-    cache[mint] = dec
-    return dec
+        return 9
 
 
-def aggregate(con: sqlite3.Connection) -> dict:
-    """去重后按 (day, mint) 聚合六条线。"""
-    rows = con.execute(f"""
-        SELECT day, quote_mint,
-               sum(protocol_fee) protocol_fee, sum(creator_fee) creator_fee,
-               sum(buyback_fee) buyback_fee, sum(lp_fee) lp_fee,
-               sum(cashback) cashback, sum(holder_rewards) holder_rewards,
-               count(*) n
+def prepare(mints: list[str], workers: int, rate: float) -> None:
+    """并发补齐价格/精度缓存（mint 级一次）。"""
+    now = int(time.time())
+    for m in FIXED:
+        PRICES.setdefault(m, {"price": None, "liq": None, "at": 0})
+    todo_p = [m for m in mints if m not in FIXED
+              and (m not in PRICES or now - PRICES[m].get("at", 0) > PRICE_TTL)]
+    todo_d = [m for m in mints if m not in DECS]
+
+    def work(m: str):
+        _throttle(rate)
+        return m, fetch_price(m), fetch_decimals(m)
+
+    done = 0
+    with cf.ThreadPoolExecutor(max_workers=workers) as ex:
+        for m, price, dec in ex.map(work, todo_p):
+            PRICES[m] = {**price, "at": now}
+            DECS.setdefault(m, dec)
+            done += 1
+            if done % 50 == 0:
+                print(f"  抓取价格/精度 {done}/{len(todo_p)}", flush=True)
+    for m in todo_d:
+        DECS.setdefault(m, 9)
+    if todo_p:
+        print(f"  新抓取 {len(todo_p)} 个 mint 的价格", flush=True)
+
+
+def unit_usd(mint: str, sol: float) -> tuple[float | None, bool]:
+    """返回 (每个 raw unit 的 USD, 是否流动性达标)。"""
+    if mint in (WSOL, NATIVE):
+        return sol / 1e9, True
+    if mint == USDC:
+        return 1.0 / 1e6, True
+    info = PRICES.get(mint) or {}
+    if info.get("price") is None:
+        return None, False
+    return info["price"] / (10 ** DECS.get(mint, 9)), (info.get("liq") or 0) >= MIN_LIQ[0]
+
+
+MIN_LIQ = [50000.0]
+
+
+def aggregate(con: sqlite3.Connection, period_fmt: str) -> list[sqlite3.Row]:
+    cols = ", ".join(f"total({k}) {k}" for k in LINES)
+    return con.execute(f"""
+        SELECT period, quote_mint, {cols}, count(*) n
         FROM (
-          SELECT *, strftime('%Y-%m-%d', ts, 'unixepoch') AS day,
+          SELECT *, strftime(?, ts, 'unixepoch') AS period,
                  ROW_NUMBER() OVER (
                    PARTITION BY signature, name, COALESCE(pool, '')
                    ORDER BY rowid) AS rn
           FROM events
-          WHERE ts BETWEEN 1600000000 AND 2000000000 AND quote_mint IS NOT NULL
+          WHERE ts BETWEEN ? AND ? AND quote_mint IS NOT NULL
             AND name IN ({','.join('?' * len(TRADE_EVENTS))})
         )
         WHERE rn = 1
-        GROUP BY day, quote_mint
-    """, TRADE_EVENTS).fetchall()
-    out = {}
+        GROUP BY period, quote_mint
+    """, (period_fmt, TS_MIN, TS_MAX, *TRADE_EVENTS)).fetchall()
+
+
+def accumulate(rows, sol: float) -> dict:
+    out: dict[str, dict] = defaultdict(
+        lambda: {k: 0.0 for k in LINES}
+        | {f"{k}_liq": 0.0 for k in LINES}
+        | {"total": 0.0, "total_liq": 0.0, "n": 0,
+           "unpriced_mints": set(), "illiquid_mints": set()})
     for r in rows:
-        out[(r["day"], r["quote_mint"])] = {k: (r[k] or 0.0) for k in LINES} | {"n": r["n"]}
+        cu, liq_ok = unit_usd(r["quote_mint"], sol)
+        d = out[r["period"]]
+        d["n"] += r["n"]
+        if cu is None:
+            d["unpriced_mints"].add(r["quote_mint"])
+            continue
+        if not liq_ok:
+            d["illiquid_mints"].add(r["quote_mint"])
+        for k in LINES:
+            usd = (r[k] or 0.0) * cu
+            d[k] += usd
+            d["total"] += usd
+            if liq_ok:
+                d[f"{k}_liq"] += usd
+                d["total_liq"] += usd
     return out
 
 
-def report(compare: bool, top: int, min_liq: float) -> None:
+def health(con: sqlite3.Connection) -> dict:
+    n, mn, mx = con.execute(
+        "SELECT count(*), min(ts), max(ts) FROM events WHERE ts BETWEEN ? AND ?",
+        (TS_MIN, TS_MAX)).fetchone()
+    now = int(time.time())
+    recent = con.execute("SELECT count(*) FROM events WHERE ts > ?", (now - 600,)).fetchone()[0]
+    return {"events": n, "first_ts": mn, "last_ts": mx,
+            "last_age_s": (now - mx) if mx else None,
+            "last_10min_events": recent}
+
+
+def write_csv(path: pathlib.Path, daily: dict) -> None:
+    with path.open("w", newline="", encoding="utf-8") as f:
+        w = csv.writer(f)
+        w.writerow(["day", "events"] + LINES + ["total"]
+                   + [f"{k}_liq" for k in LINES] + ["total_liq",
+                     "unpriced_mints", "illiquid_mints"])
+        for day in sorted(daily):
+            d = daily[day]
+            w.writerow([day, d["n"]]
+                       + [round(d[k], 2) for k in LINES] + [round(d["total"], 2)]
+                       + [round(d[f"{k}_liq"], 2) for k in LINES]
+                       + [round(d["total_liq"], 2),
+                          len(d["unpriced_mints"]), len(d["illiquid_mints"])])
+
+
+def report(compare: bool, top: int, min_liq: float, max_mints: int,
+           workers: int, rate: float) -> None:
     if not DB.exists():
         raise SystemExit("没有 runtime/stream.sqlite3，先跑 run_stream.sh")
+    MIN_LIQ[0] = min_liq
     con = sqlite3.connect(DB)
     con.row_factory = sqlite3.Row
-    agg = aggregate(con)
-    prices = json.loads(PRICE_CACHE.read_text()) if PRICE_CACHE.exists() else {}
-    decs = json.loads(DEC_CACHE.read_text()) if DEC_CACHE.exists() else {}
+    PRICES.update(json.loads(PRICE_CACHE.read_text()) if PRICE_CACHE.exists() else {})
+    DECS.update(json.loads(DEC_CACHE.read_text()) if DEC_CACHE.exists() else {})
     sol = sol_price()
 
-    def unit_usd(mint: str) -> tuple[float | None, bool]:
-        """返回 (每个 raw unit 的 USD, 是否“流动性达标”)。"""
-        if mint in (WSOL, NATIVE):
-            return sol / 1e9, True   # 原生 SOL = lamports，WSOL 9 位小数
-        if mint == USDC:
-            return 1.0 / 1e6, True
-        info = dex_price(mint, prices)
-        if info["price"] is None:
-            return None, False
-        liq_ok = (info["liq"] or 0) >= min_liq
-        return info["price"] / (10 ** mint_decimals(mint, decs)), liq_ok
+    daily_rows = aggregate(con, "%Y-%m-%d")
+    hourly_rows = aggregate(con, "%Y-%m-%dT%H:00")
+    counts: dict[str, int] = defaultdict(int)
+    for r in daily_rows + hourly_rows:
+        counts[r["quote_mint"]] += r["n"]
+    chosen = sorted(counts, key=lambda m: -counts[m])[:max_mints]
+    prepare(chosen, workers, rate)
 
-    daily: dict[str, dict] = defaultdict(lambda: {k: 0.0 for k in LINES}
-                                         | {"total": 0.0, "total_liq": 0.0, "n": 0,
-                                            "unpriced_mints": set(), "illiquid_mints": set()})
-    mint_usd: dict[str, float] = defaultdict(float)
-    total_combos = len(agg)
-    for i, ((day, mint), vals) in enumerate(agg.items(), 1):
-        if i % 25 == 0:
-            print(f"  定价中… {i}/{total_combos}", flush=True)
-        cu, liq_ok = unit_usd(mint)
-        daily[day]["n"] += vals["n"]
-        if cu is None:
-            daily[day]["unpriced_mints"].add(mint)
-            continue
-        if not liq_ok:
-            daily[day]["illiquid_mints"].add(mint)
-        for k in LINES:
-            usd = vals[k] * cu
-            daily[day][k] += usd
-            daily[day]["total"] += usd
-            mint_usd[mint] += usd
-            if liq_ok:
-                daily[day]["total_liq"] += usd
-
-    print(f"价格基准：SOL ${sol:.2f}；覆盖 {len(agg)} 个 (day, mint) 组合\n")
-    head = f"{'day':11} {'events':>8} {'protocol':>12} {'buyback':>12} {'creator':>12} {'lp':>12} {'rewards':>10} {'total':>12}"
+    daily = accumulate(daily_rows, sol)
+    hourly = accumulate(hourly_rows, sol)
+    h = health(con)
+    print(f"价格基准：SOL ${sol:.2f}；{len(daily)} 天 / {len(hourly)} 小时；"
+          f"事件 {h['events']:,}（最新 {h['last_age_s']}s 前）；"
+          f"定价 mint {len(chosen)}/{len(counts)}")
+    head = (f"{'period':21} {'events':>9} {'protocol':>11} {'buyback':>11} "
+            f"{'creator':>11} {'lp':>11} {'total':>12} {'liquid':>12}")
     print(head)
     print("-" * len(head))
     for day in sorted(daily):
         d = daily[day]
-        rew = d["cashback"] + d["holder_rewards"]
-        print(f"{day:11} {d['n']:>8} {d['protocol_fee']:>12,.0f} {d['buyback_fee']:>12,.0f} "
-              f"{d['creator_fee']:>12,.0f} {d['lp_fee']:>12,.0f} {rew:>10,.0f} "
-              f"{d['total']:>12,.0f}")
-        print(f"{'':11} {'':>8} 流动性≥${min_liq/1000:.0f}k 口径: "
-              f"total ${d['total_liq']:,.0f}；未定价 {len(d['unpriced_mints'])}，"
-              f"低流动性 {len(d['illiquid_mints'])} 种 mint")
-
-    print(f"\nTop {top} quote 资产（按 USD）：")
-    for m, usd in sorted(mint_usd.items(), key=lambda x: -x[1])[:top]:
-        print(f"  {m[:20]:20} ${usd:,.2f}")
+        print(f"{day:21} {d['n']:>9} {d['protocol_fee']:>11,.0f} {d['buyback_fee']:>11,.0f} "
+              f"{d['creator_fee']:>11,.0f} {d['lp_fee']:>11,.0f} {d['total']:>12,.0f} "
+              f"{d['total_liq']:>12,.0f}")
 
     dl_cmp: dict = {}
     if compare:
@@ -186,40 +245,55 @@ def report(compare: bool, top: int, min_liq: float) -> None:
             d = get_json(f"https://api.llama.fi/summary/fees/{slug}?dataType=dailyRevenue")
             if d:
                 dl_cmp[slug] = {k: d.get(k) for k in ("total24h", "total7d", "total30d")}
-                print(f"\nDefiLlama {slug} revenue: 24h ${d['total24h']/1e6:.2f}M | "
+                print(f"  DefiLlama {slug}: 24h ${d['total24h']/1e6:.2f}M | "
                       f"7d ${d['total7d']/1e6:.2f}M | 30d ${d['total30d']/1e6:.2f}M")
-        print("（我们的口径：protocol+buyback+creator+lp+cashback+holder；"
-              "DefiLlama 的 revenue 只含协议留存）")
 
-    PRICE_CACHE.write_text(json.dumps(prices, indent=1))
-    DEC_CACHE.write_text(json.dumps(decs, indent=1))
+    def clean(o):
+        if isinstance(o, set):
+            return len(o)
+        raise TypeError
+
+    mint_usd: dict[str, float] = defaultdict(float)
+    for r in daily_rows:
+        cu, _ = unit_usd(r["quote_mint"], sol)
+        if cu is None:
+            continue
+        for k in LINES:
+            mint_usd[r["quote_mint"]] += (r[k] or 0.0) * cu
+
     out = {
         "as_of": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-        "sol_usd": sol,
-        "daily": {day: {**{k: round(v, 2) for k, v in d.items()
-                          if k not in ("unpriced_mints", "illiquid_mints")},
-                        "unpriced_mints": len(d["unpriced_mints"]),
-                        "illiquid_mints": len(d["illiquid_mints"])}
-                  for day, d in sorted(daily.items())},
+        "sol_usd": sol, "min_liquidity": min_liq, "health": h,
+        "priced_mints": len(chosen), "total_mints": len(counts),
+        "daily": {d: json.loads(json.dumps(v, default=clean))
+                  for d, v in sorted(daily.items())},
+        "hourly": [{"hour": k, **json.loads(json.dumps(v, default=clean))}
+                   for k, v in sorted(hourly.items())],
         "top_mints": [{"mint": m, "usd": round(u, 2)}
                       for m, u in sorted(mint_usd.items(), key=lambda x: -x[1])[:top]],
         "defillama": dl_cmp,
     }
+    PRICE_CACHE.write_text(json.dumps(PRICES, indent=1))
+    DEC_CACHE.write_text(json.dumps(DECS, indent=1))
     (ROOT / "stream_report.json").write_text(json.dumps(out, ensure_ascii=False, indent=1))
-    print(f"\n写了 {ROOT/'stream_report.json'}")
+    write_csv(ROOT / "stream_report.csv", daily)
+    print(f"写了 {ROOT/'stream_report.json'} 和 {ROOT/'stream_report.csv'}")
 
 
 def main() -> None:
     global HTTP
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--compare", action="store_true", help="附表与 DefiLlama 对比")
+    ap.add_argument("--compare", action="store_true")
     ap.add_argument("--top", type=int, default=10)
-    ap.add_argument("--min-liquidity", type=float, default=50000,
-                    help="低于该流动性（USD）的 quote 资产计入“低流动性”口径")
+    ap.add_argument("--min-liquidity", type=float, default=50000)
+    ap.add_argument("--max-mints", type=int, default=600, help="最多给多少个 mint 定价")
+    ap.add_argument("--workers", type=int, default=8)
+    ap.add_argument("--rate", type=float, default=0.12, help="外部价格请求最小间隔秒")
     ap.add_argument("--rpc", help="覆盖 RPC（默认 .env 里的 ALCHEMY_RPC_URL）")
     args = ap.parse_args()
     HTTP = make_client(cli=args.rpc, rate=0.02)
-    report(args.compare, args.top, args.min_liquidity)
+    report(args.compare, args.top, args.min_liquidity, args.max_mints,
+           args.workers, args.rate)
 
 
 if __name__ == "__main__":

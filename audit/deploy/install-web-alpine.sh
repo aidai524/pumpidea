@@ -56,8 +56,9 @@ OUT=$DEST
 cd "\$APP" || exit 0
 PY="\$APP/.venv/bin/python"
 [ -x "\$PY" ] || PY=python3
-\$PY stream_report.py --compare --top 15 >/var/log/pumpfun-report.log 2>&1
+\$PY stream_report.py --compare --top 15 --max-mints 600 --workers 8 >/var/log/pumpfun-report.log 2>&1
 \$PY make_stream_page.py --report "\$APP/stream_report.json" --out "\$OUT/index.html" >>/var/log/pumpfun-report.log 2>&1
+cp "\$APP/stream_report.csv" "\$OUT/stream_report.csv" 2>/dev/null || true
 EOF
 chmod +x /etc/periodic/hourly/pumpfun-report
 rc-update add crond default >/dev/null 2>&1 || true
