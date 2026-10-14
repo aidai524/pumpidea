@@ -19,6 +19,7 @@ import asyncio
 import base64
 import hashlib
 import json
+import os
 import pathlib
 import signal
 import sqlite3
@@ -51,6 +52,7 @@ ACCOUNT_DISC = {(p, name): hashlib.sha256(("account:" + name).encode()).digest()
                                 + [(PUMP["address"], t["name"]) for t in PUMP["types"]])}
 
 HTTP = make_client(rate=0.02)
+STORE_FIELDS = os.environ.get("PULSE_STORE_FIELDS", "1") != "0"
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS events(
   signature TEXT, program TEXT, name TEXT, slot INTEGER, ts INTEGER,
@@ -191,8 +193,9 @@ def normalize(program: str, name: str, ev: dict, sig: str, slot: int) -> dict:
            "buyback_fee": _num(ev.get("buyback_fee")), "lp_fee": _num(ev.get("lp_fee")),
            "cashback": _num(ev.get("cashback")),
            "holder_rewards": _num(ev.get("holder_rewards")),
-           "fields": json.dumps({k: v for k, v in ev.items() if not isinstance(v, dict)},
-                                ensure_ascii=False)}
+           "fields": (json.dumps({k: v for k, v in ev.items()
+                                  if not isinstance(v, dict)}, ensure_ascii=False)
+                      if STORE_FIELDS else None)}
     if is_amm and row["pool"]:
         pm = pool_mints(row["pool"])
         if pm:
