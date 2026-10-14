@@ -162,3 +162,16 @@ https://team.stableflow.ai/risk/score/{mint}   # JSON API
     （离线模型最强的两个特征）；已给采集器加 `token_amount` 列，
     后续可从「创建者首买 token 数 / 总量」重建部分 dev_share
   - 样本量小（流上线不到 6 小时），每日重跑更有意义
+
+---
+
+## 9. 缺口收口（2026-10-14 晚）
+
+- **dev_share 历史重建**：用采集器新增的 `token_amount` 列（创建者前 10 秒买入量 /
+  总供应）重建。回测样本 425 → **4,015**，**rug AUC 0.72 → 0.842**，
+  top10% 精确率 95.3%。毕业侧 AUC 0.43（内部人占比仍无法历史重建，
+  该特征在离线模型里权重大，属于已知缺口）。
+- **数据库健壮性**：stream.sqlite3 切换到 **WAL**（读写并发）；
+  采集器/回填/回测都加 `busy_timeout`；建 `idx_events_mint`。
+- **其他收入线**：采集器现在订阅 **pump fee 程序**（`pfeeUx…`），
+  social/donation/sweep 等事件计入活动量（公开 IDL 无金额字段，暂无法折算 USD）。

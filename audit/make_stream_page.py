@@ -86,6 +86,40 @@ def build(report_path: pathlib.Path, out_path: pathlib.Path) -> None:
     top_rows = "".join(
         f"<tr><td class='mono'>{esc(t['mint'])}</td><td class='r'>${t['usd']:,.0f}</td></tr>"
         for t in R.get("top_mints", []))
+    fee_events = R.get("fee_events") or {}
+    fee_html = ""
+    if fee_events:
+        fee_html = ("<h2>其他收入线活动（fee 程序事件，计数）</h2><table><tr><th>事件</th>"
+                    "<th class='r'>次数</th></tr>"
+                    + "".join(f"<tr><td>{esc(k)}</td><td class='r'>{v:,}</td></tr>"
+                              for k, v in fee_events.items())
+                    + "</table><p class='note'>social / donation / buyback sweep 等事件"
+                      "在公开 IDL 里没有金额字段，暂时只能计活动量，无法折算 USD。</p>")
+
+    off = R.get("official") or {}
+    off_html = ""
+    if off.get("annualized_revenue_m") is not None:
+        last_day = days[-1] if days else None
+        ld = daily.get(last_day, {}) if last_day else {}
+        ours_rev = ld.get("protocol_fee_liq", 0) + ld.get("buyback_fee_liq", 0)
+        ours_buy = ld.get("buyback_fee_liq", 0)
+        off_html = ("<h2>官方看板对照（fees.pump.fun）</h2><table>"
+                    "<tr><th></th><th class='r'>官方</th><th class='r'>我们（流动性口径）</th></tr>"
+                    f"<tr><td>收入（日均 / 最新日）</td>"
+                    f"<td class='r'>${off.get('daily_avg_m', 0)}M / 天</td>"
+                    f"<td class='r'>${ours_rev:,.0f}（{esc(last_day)}，未满一天）</td></tr>"
+                    f"<tr><td>回购（最新日）</td>"
+                    f"<td class='r'>${off.get('daily_buyback_k', 0)}K</td>"
+                    f"<td class='r'>${ours_buy:,.0f}</td></tr>"
+                    f"<tr><td>年化收入 / 累计回购 / 已销毁</td>"
+                    f"<td class='r'>${off.get('annualized_revenue_m', 0)}M / "
+                    f"${off.get('bought_back_m', 0)}M / {off.get('burned_pump_b', 0)}B $PUMP</td>"
+                    f"<td class='r'>—</td></tr></table>"
+                    f"<p class='note'>官方口径为协议留存（数据截至 {esc(off.get('data_as_of'))}）；"
+                    + ("官方自述：custom pairs 后看板不准确。"
+                       if off.get("disclaimer") else "")
+                    + "我们的数字是六条线的流动性达标口径，两者定义不同，仅作量级对照。</p>")
+
     dl = R.get("defillama") or {}
     dl_html = ""
     if dl:
@@ -144,12 +178,18 @@ def build(report_path: pathlib.Path, out_path: pathlib.Path) -> None:
 <h2>明细 · 流动性达标口径（USD）</h2>
 {liq_table}
 <p class="note">只统计最优交易对流动性 ≥ ${R.get('min_liquidity', 50000):,.0f} 的 quote 资产。
-原生 SOL/WSOL 用 CoinGecko，USDC=1，其余用 DexScreener。两个口径一起看才完整。</p>
+原生 SOL/WSOL 用 CoinGecko，USDC=1，其余用 DexScreener（top5 交易对按流动性加权中位数；
+偏好 SOL/USDC/USDT 计价对）。定价质量：{esc((R.get('pricing_quality') or {}).get('priced'))}/
+{esc((R.get('pricing_quality') or {}).get('chosen'))} 可定价，
+{esc((R.get('pricing_quality') or {}).get('major_quote'))} 来自主流计价对，
+{esc((R.get('pricing_quality') or {}).get('high_dispersion'))} 个离散&gt;3×。</p>
 
 <h2>Top quote 资产（按 USD，全价口径）</h2>
 <table><tr><th>mint</th><th class="r">金额</th></tr>{top_rows}</table>
 
 {dl_html}
+{off_html}
+{fee_html}
 <p class="note">这是独立复算，不是 pump.fun 官方数据，也不构成投资建议。</p>
 </div></body></html>"""
     out_path.parent.mkdir(parents=True, exist_ok=True)

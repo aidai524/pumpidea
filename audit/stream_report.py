@@ -69,19 +69,54 @@ def _throttle(rate: float) -> None:
         _last_req[0] = time.time()
 
 
+MAJOR_QUOTES = {WSOL, USDC, "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB"}  # SOL/USDC/USDT
+
+
+def _wmedian(samples: list[tuple[float, float]]) -> float:
+    """按流动性加权的价格中位数。"""
+    samples = sorted(samples)
+    total = sum(w for _, w in samples) or 1.0
+    acc = 0.0
+    for price, w in samples:
+        acc += w
+        if acc >= total / 2:
+            return price
+    return samples[-1][0]
+
+
 def fetch_price(mint: str) -> dict:
+    """定价 v2：top5 交易对按流动性加权中位数，偏好主流计价对，记录离散度。"""
     d = get_json(f"https://api.dexscreener.com/latest/dex/tokens/{mint}")
-    out = {"price": None, "liq": None}
-    if d and d.get("pairs"):
-        best = max(d["pairs"], key=lambda p: float((p.get("liquidity") or {}).get("usd") or 0))
+    out = {"price": None, "liq": None, "pairs": 0, "major": False, "dispersion": None}
+    if not (d and d.get("pairs")):
+        return out
+
+    def liq_usd(p):
         try:
-            out["price"] = float(best["priceUsd"])
-        except (KeyError, TypeError, ValueError):
-            pass
-        try:
-            out["liq"] = float((best.get("liquidity") or {}).get("usd") or 0)
+            return float((p.get("liquidity") or {}).get("usd") or 0)
         except (TypeError, ValueError):
-            pass
+            return 0.0
+
+    pairs = sorted(d["pairs"], key=liq_usd, reverse=True)[:5]
+    usable = []
+    for p in pairs:
+        try:
+            price = float(p["priceUsd"])
+        except (KeyError, TypeError, ValueError):
+            continue
+        quote = ((p.get("quoteToken") or {}).get("address") or "")
+        usable.append((price, max(liq_usd(p), 1.0), quote in MAJOR_QUOTES))
+    if not usable:
+        return out
+    majors = [u for u in usable if u[2]]
+    chosen = majors or usable
+    out["price"] = _wmedian([(pr, w) for pr, w, _ in chosen])
+    out["liq"] = max(liq_usd(p) for p in pairs)
+    out["pairs"] = len(usable)
+    out["major"] = bool(majors)
+    prices = [pr for pr, _, _ in chosen]
+    if min(prices) > 0:
+        out["dispersion"] = round(max(prices) / min(prices), 2)
     return out
 
 
@@ -239,6 +274,36 @@ def report(compare: bool, top: int, min_liq: float, max_mints: int,
               f"{d['creator_fee']:>11,.0f} {d['lp_fee']:>11,.0f} {d['total']:>12,.0f} "
               f"{d['total_liq']:>12,.0f}")
 
+    official = None
+    try:
+        from fetch_official import load_or_fetch
+        official = load_or_fetch()
+    except Exception:  # noqa: BLE001
+        official = None
+    if official and official.get("annualized_revenue_m"):
+        print(f"  官方看板: 年化 ${official['annualized_revenue_m']}M"
+              f"（日均 ${official['daily_avg_m']}M）| 最新日回购 "
+              f"${official['daily_buyback_k']}K | 数据截至 {official.get('data_as_of')}")
+
+    # 其他收入线：fee 程序（social/donation/sweep 等）活动计数（IDL 事件无字段）
+    fee_events = {r[0]: r[1] for r in con.execute(
+        "SELECT name, count(*) FROM events WHERE program='fees' AND ts BETWEEN ? AND ? "
+        "GROUP BY name ORDER BY count(*) DESC", (TS_MIN, TS_MAX)).fetchall()}
+    if fee_events:
+        print(f"  其他收入线活动：{fee_events}")
+
+    # 定价质量：主流计价对比例 / 离散度 / 未定价
+    priced = [m for m in chosen if (PRICES.get(m) or {}).get("price") is not None]
+    pricing_quality = {
+        "chosen": len(chosen), "priced": len(priced),
+        "major_quote": sum(1 for m in priced if (PRICES.get(m) or {}).get("major")),
+        "high_dispersion": sum(1 for m in priced
+                               if ((PRICES.get(m) or {}).get("dispersion") or 0) > 3),
+    }
+    print(f"  定价质量：{pricing_quality['priced']}/{len(chosen)} 可定价，"
+          f"{pricing_quality['major_quote']} 来自主流计价对，"
+          f"{pricing_quality['high_dispersion']} 离散>3×")
+
     dl_cmp: dict = {}
     if compare:
         for slug in ("pump.fun", "pumpswap"):
@@ -272,6 +337,9 @@ def report(compare: bool, top: int, min_liq: float, max_mints: int,
         "top_mints": [{"mint": m, "usd": round(u, 2)}
                       for m, u in sorted(mint_usd.items(), key=lambda x: -x[1])[:top]],
         "defillama": dl_cmp,
+        "official": official,
+        "pricing_quality": pricing_quality,
+        "fee_events": fee_events,
     }
     PRICE_CACHE.write_text(json.dumps(PRICES, indent=1))
     DEC_CACHE.write_text(json.dumps(DECS, indent=1))

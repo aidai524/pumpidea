@@ -35,12 +35,13 @@ DB = RUNTIME / "stream.sqlite3"
 
 AMM = json.loads((ROOT / "data" / "pump_amm_idl.json").read_text())
 PUMP = json.loads((ROOT / "data" / "pump_idl.json").read_text())
-PROGRAMS = [AMM["address"], PUMP["address"]]
+FEE = json.loads((ROOT / "data" / "pump_fees_idl.json").read_text())
+PROGRAMS = [AMM["address"], PUMP["address"], FEE["address"]]
 
 # 事件判别码 -> (program, event name)
 EVENTS: dict[bytes, tuple[str, str]] = {}
 TYPES: dict[tuple[str, str], list] = {}
-for _idl in (AMM, PUMP):
+for _idl in (AMM, PUMP, FEE):
     for _e in _idl["events"]:
         EVENTS[bytes(_e["discriminator"])] = (_idl["address"], _e["name"])
     for _t in _idl["types"]:
@@ -185,7 +186,9 @@ def normalize(program: str, name: str, ev: dict, sig: str, slot: int) -> dict:
     ts = int(ev.get("timestamp") or time.time())
     if not (1_600_000_000 <= ts <= 2_000_000_000):   # 年 2020~2033，之外视为脏数据
         ts = int(time.time())
-    row = {"signature": sig, "program": "amm" if is_amm else "curve",
+    pgm = ("amm" if is_amm else
+           ("fees" if program == FEE["address"] else "curve"))
+    row = {"signature": sig, "program": pgm,
            "name": name, "slot": slot, "ts": ts,
            "pool": ev.get("pool"), "mint": ev.get("mint"), "quote_mint": ev.get("quote_mint"),
            "quote_amount": _num(ev.get("quote_amount") or ev.get("quote_amount_in")
@@ -226,7 +229,7 @@ def parse_logs(con: sqlite3.Connection, sig: str, slot: int, logs: list[str],
             continue
         program, name = hit
         ev = decode_event(program, name, raw)
-        if not ev:
+        if ev is None:
             continue
         pending.append(normalize(program, name, ev, sig, slot))
         n += 1

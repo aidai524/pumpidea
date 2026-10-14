@@ -38,16 +38,18 @@ def score(model: dict, feats: dict) -> float:
 
 def early_features(con: sqlite3.Connection, mint: str) -> dict | None:
     rows = con.execute(
-        "SELECT ts, is_buy, user, creator, sol_amount, real_quote_reserves "
-        "FROM events WHERE mint=? AND program='curve' AND ts BETWEEN 1600000000 AND 2000000000 "
-        "ORDER BY ts LIMIT 500", (mint,)).fetchall()
+        "SELECT ts, is_buy, user, creator, sol_amount, real_quote_reserves, token_amount "
+        "FROM events WHERE mint=? AND program='curve' "
+        "AND ts BETWEEN 1600000000 AND 2000000000 ORDER BY ts LIMIT 500",
+        (mint,)).fetchall()
     if not rows:
         return None
     t0 = min(r[0] for r in rows)
     creator = next((r[3] for r in rows if r[3]), None)
     buys, dev_buy, reserve = [], None, None
+    creator_tokens = 0.0
     per_ts: dict[int, int] = {}
-    for ts, is_buy, user, _c, sol, rq in rows:
+    for ts, is_buy, user, _c, sol, rq, tok in rows:
         if ts - t0 > 10:
             continue
         per_ts[ts] = per_ts.get(ts, 0) + 1
@@ -57,9 +59,14 @@ def early_features(con: sqlite3.Connection, mint: str) -> dict | None:
                 reserve = rq
             if creator and user == creator and dev_buy is None:
                 dev_buy = (sol or 0) / 1e9
+            if creator and user == creator and tok:
+                creator_tokens += tok
     first_two = sorted(per_ts)[:2]
     bundle = {u for ts, u in buys if ts in first_two and u and u != creator}
+    # dev_share 历史重建：创建者前 10 秒买入的 token / 总供应（1e15 raw）
+    dev_share_est = (creator_tokens / 1e15) if creator_tokens else None
     return {"t0": t0, "creator": creator, "dev_buy_sol": dev_buy,
+            "dev_share_est": dev_share_est,
             "f10_n_buys": len(buys), "f10_bundle_wallets": len(bundle),
             "f10_rs": (reserve / 1e9) if reserve else None}
 
@@ -125,9 +132,9 @@ def main() -> None:
         label = oc.execute("SELECT rug_like, graduated_like FROM mint_outcomes WHERE mint=?",
                            (mint,)).fetchone()
         feats = {**history(ds, oc, ef["creator"], ef["t0"]),
-                 "dev_share": None, **{k: ef[k] for k in
-                                       ("dev_buy_sol", "f10_n_buys",
-                                        "f10_bundle_wallets", "f10_rs")}}
+                 "dev_share": ef.get("dev_share_est"),
+                 **{k: ef[k] for k in ("dev_buy_sol", "f10_n_buys",
+                                       "f10_bundle_wallets", "f10_rs")}}
         rows.append({"mint": mint, "p_rug": score(MODEL["rug"], feats),
                      "p_grad": score(MODEL["graduation"], feats),
                      "rug": label[0], "grad": label[1],
