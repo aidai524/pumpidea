@@ -61,7 +61,7 @@ CREATE TABLE IF NOT EXISTS events(
   lp_fee INTEGER, cashback INTEGER, holder_rewards INTEGER, fields TEXT,
   collected_at INTEGER,
   creator TEXT, user TEXT, is_buy INTEGER, sol_amount INTEGER,
-  real_quote_reserves INTEGER
+  real_quote_reserves INTEGER, token_amount INTEGER
 );
 CREATE INDEX IF NOT EXISTS idx_events_ts ON events(ts);
 CREATE TABLE IF NOT EXISTS pools(
@@ -199,6 +199,7 @@ def normalize(program: str, name: str, ev: dict, sig: str, slot: int) -> dict:
            "sol_amount": _num(ev.get("sol_amount")),
            "real_quote_reserves": _num(ev.get("real_quote_reserves")
                                        or ev.get("real_sol_reserves")),
+           "token_amount": _num(ev.get("token_amount")),
            "holder_rewards": _num(ev.get("holder_rewards")),
            "fields": (json.dumps({k: v for k, v in ev.items()
                                   if not isinstance(v, dict)}, ensure_ascii=False)
@@ -242,11 +243,12 @@ def flush(con: sqlite3.Connection, pending: list) -> None:
         """INSERT INTO events(signature,program,name,slot,ts,pool,mint,quote_mint,
              quote_amount,protocol_fee,creator_fee,buyback_fee,lp_fee,cashback,
              holder_rewards,fields,collected_at,
-             creator,user,is_buy,sol_amount,real_quote_reserves)
+             creator,user,is_buy,sol_amount,real_quote_reserves,token_amount)
            VALUES(:signature,:program,:name,:slot,:ts,:pool,:mint,:quote_mint,
              :quote_amount,:protocol_fee,:creator_fee,:buyback_fee,:lp_fee,:cashback,
              :holder_rewards,:fields,:collected_at,
-             :creator,:user,:is_buy,:sol_amount,:real_quote_reserves)""",
+             :creator,:user,:is_buy,:sol_amount,:real_quote_reserves,
+             :token_amount)""",
         [{**r, "collected_at": int(time.time())} for r in pending])
     for r in pending:
         if r["pool"] and r["pool"] in POOL_CACHE:
@@ -272,11 +274,13 @@ def ws_url() -> str:
 
 async def collector(minutes: float, log_every: int) -> None:
     RUNTIME.mkdir(parents=True, exist_ok=True)
-    con = sqlite3.connect(DB)
+    con = sqlite3.connect(DB, timeout=60)
+    con.execute("PRAGMA busy_timeout=60000")
     con.executescript(SCHEMA)
     have = {r[1] for r in con.execute("PRAGMA table_info(events)")}
     for col, typ in (("creator", "TEXT"), ("user", "TEXT"), ("is_buy", "INTEGER"),
-                     ("sol_amount", "INTEGER"), ("real_quote_reserves", "INTEGER")):
+                     ("sol_amount", "INTEGER"), ("real_quote_reserves", "INTEGER"),
+                     ("token_amount", "INTEGER")):
         if col not in have:
             con.execute(f"ALTER TABLE events ADD COLUMN {col} {typ}")
             print(f"migrate: +{col}", flush=True)

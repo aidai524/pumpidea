@@ -30,6 +30,7 @@ def score(model: dict, features: dict) -> float:
         if v is None:
             v = mean                      # 缺失按训练均值中性处理
         z += coef * ((float(v) - mean) / (scale or 1.0))
+    z = max(-60.0, min(60.0, z))
     return 1.0 / (1.0 + math.exp(-z))
 
 

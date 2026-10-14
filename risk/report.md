@@ -146,3 +146,19 @@ https://team.stableflow.ai/risk/score/{mint}   # JSON API
   评分时与数据集历史合并（`history_source: dataset+stream`）。
 - 已知边界：迁移前的历史事件行缺 `creator` 列（覆盖随时间增长）；
   outcome 规则是简化版；在线概率尚未做回测校准。
+
+---
+
+## 8. 回填与在线回测（2026-10-14）
+
+- **creator 回填**：迁移前的 15,375 个 mint 中回填 15,277 个
+  （`backfill_creator.py`，64 mint/s；剩余 871 个链上找不到 curve）。
+  期间发现并修复：`mint` 列缺索引导致长锁 → 已建 `idx_events_mint`；
+  采集器与回填都加 `busy_timeout`。
+- **在线回测**（`backtest_online.py`，425 个成熟且有结局的 mint）：
+  - 基准：rug 77.4% / grad 22.8%
+  - **AUC rug 0.72 / grad 0.49**；top10% rug 精确率 100%（基准已 77%，参考价值有限）
+  - 差距原因：回测无法历史重建 `dev_share` 与 `f10_insider_share`
+    （离线模型最强的两个特征）；已给采集器加 `token_amount` 列，
+    后续可从「创建者首买 token 数 / 总量」重建部分 dev_share
+  - 样本量小（流上线不到 6 小时），每日重跑更有意义
