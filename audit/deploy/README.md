@@ -82,3 +82,20 @@ OpenRC 服务带 `supervisor=supervise-daemon` + `respawn_delay=5`（崩溃自�
 - 建议在 Alchemy 控制台为该 key 设额度上限；泄漏时单独吊销。
 - VPS 只开 SSH；不需要 nginx/端口。
 - 数据库是普通 SQLite 文件，`rsync` 时建议先 `sqlite3 db ".backup /tmp/x"` 或停服务几秒。
+
+
+## Web 报表页（Alpine，只读）
+
+```bash
+# 服务器上（代码已同步到 /opt/pumpfun-stream）：
+sh /opt/pumpfun-stream/deploy/install-web-alpine.sh
+# 输出会打印访问 URL、用户名和随机密码（凭据存 /etc/pumpfun-web.conf，600）
+```
+
+- 用 stdlib `serve_site.py`（Basic Auth，默认 8080），**不碰 80/443**（那通常是别的应用）；
+- `/etc/periodic/hourly/pumpfun-report` 每小时自动重建：拉数 → 定价 → 生成 `index.html`；
+- 查看日志：`tail -f /var/log/pumpfun-report.log`；
+- 改密码：改 `/etc/pumpfun-web.conf` 后 `rc-service pumpfun-web restart`。
+
+> 加密提醒：Basic Auth 走 HTTP 时凭据是明文（仅适合临时演示）。要长期用请加域名 +
+> TLS，或只在 SSH 隧道里访问：`ssh -L 8080:127.0.0.1:8080 root@VPS`。

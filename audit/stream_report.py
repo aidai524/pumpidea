@@ -180,10 +180,12 @@ def report(compare: bool, top: int, min_liq: float) -> None:
     for m, usd in sorted(mint_usd.items(), key=lambda x: -x[1])[:top]:
         print(f"  {m[:20]:20} ${usd:,.2f}")
 
+    dl_cmp: dict = {}
     if compare:
         for slug in ("pump.fun", "pumpswap"):
             d = get_json(f"https://api.llama.fi/summary/fees/{slug}?dataType=dailyRevenue")
             if d:
+                dl_cmp[slug] = {k: d.get(k) for k in ("total24h", "total7d", "total30d")}
                 print(f"\nDefiLlama {slug} revenue: 24h ${d['total24h']/1e6:.2f}M | "
                       f"7d ${d['total7d']/1e6:.2f}M | 30d ${d['total30d']/1e6:.2f}M")
         print("（我们的口径：protocol+buyback+creator+lp+cashback+holder；"
@@ -201,6 +203,7 @@ def report(compare: bool, top: int, min_liq: float) -> None:
                   for day, d in sorted(daily.items())},
         "top_mints": [{"mint": m, "usd": round(u, 2)}
                       for m, u in sorted(mint_usd.items(), key=lambda x: -x[1])[:top]],
+        "defillama": dl_cmp,
     }
     (ROOT / "stream_report.json").write_text(json.dumps(out, ensure_ascii=False, indent=1))
     print(f"\n写了 {ROOT/'stream_report.json'}")
