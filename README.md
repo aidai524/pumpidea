@@ -73,11 +73,13 @@ pumpfun/
 4. **`rugged` 与 `graduated` 不互斥**（9.9% 兼有），"跑路率"不能算成 `1 − 毕业率`
 5. **`rugged` 是观察规则，不是已验证的欺诈**——多数是创建者在小曲线上砸自己的盘
 
-## 与平台（`../platform/`）的关系
+## 与 `platform` 的关系（历史背景）
 
-**没有关系，这是刻意的。** 平台的分析层是为跨链 swap 定制的：`order_record` 表的字段是 `from_chain`/`to_chain`/`symbol`/`volume`，分段逻辑（`app/analysis/segments.py`）写死了四个"走廊"形状的分段键。pump.fun 的分析单元是**代币与创建者**，装不进那个模子。
+本项目**已于 2026-10-16 从原研究仓库抽取为独立仓库**，与那个仓库里的 `platform/` **没有任何代码或数据依赖**。
 
-要把它接进平台，需要新表 + 新分段模块 + 新任务 kind —— 那是一次架构改动（要写 spec），不是给现有流程打个补丁。本目录是独立的研究，不依赖平台运行，也不影响它。
+抽取之前两者就是刻意分离的：`platform` 的分析层是为跨链 swap 定制的（`order_record` 表的字段是 `from_chain`/`to_chain`/`symbol`/`volume`，分段逻辑写死了四个"走廊"形状的分段键），而本项目的分析单元是**代币与创建者**，装不进那个模子。
+
+抽取时唯一存在的耦合是 `analysis/jev_score.py` 曾从 `../platform/.env` 读 `TYPESAFE_API_KEY` —— 已改为读本仓库自己的 `.env`。
 
 ## 引用
 

@@ -39,15 +39,31 @@ _lock = threading.Lock()
 class Scorer:
     def __init__(self, db: pathlib.Path, rpc: str | None):
         self.chain = Chain(cli=rpc)
-        self.db = sqlite3.connect(db, check_same_thread=False)
-        self.db.row_factory = sqlite3.Row
+        # 只读打开：文件不存在时不要凭空建一个空库，否则报的是 "no such table"
+        # 而不是「还没建库」，让人找不到方向。缺失即按「无历史」打分。
+        self.db = None
+        p = pathlib.Path(db)
+        if p.exists() and p.stat().st_size:
+            con = sqlite3.connect(f"file:{p}?mode=ro", uri=True, check_same_thread=False)
+            con.row_factory = sqlite3.Row
+            try:
+                con.execute("SELECT 1 FROM creators LIMIT 1").fetchone()
+                self.db = con
+            except sqlite3.OperationalError as exc:
+                sys.stderr.write(f"[warn] {p.name} 里没有 creators 表（{exc}）——"
+                                 f"先跑 build_history_db.py，本次按「无历史」打分\n")
+        else:
+            sys.stderr.write(f"[warn] 未找到 {p}——先跑 build_history_db.py，"
+                             f"本次按「无历史」打分\n")
 
     def history(self, creator: str) -> dict:
         """数据集历史 + 实时流回写历史（后者每次请求读，支持热更新）。"""
         n = resolved = rugs = grads = 0
-        row = self.db.execute(
-            "SELECT n, resolved, rugs, grads FROM creators WHERE creator=?",
-            (creator,)).fetchone()
+        row = None
+        if self.db is not None:
+            row = self.db.execute(
+                "SELECT n, resolved, rugs, grads FROM creators WHERE creator=?",
+                (creator,)).fetchone()
         if row:
             n, resolved, rugs, grads = row["n"], row["resolved"], row["rugs"], row["grads"]
         src = "dataset"
@@ -161,28 +177,28 @@ DEMO_PAGE = """<!doctype html><html lang="zh"><head><meta charset="utf-8">
 <p><input id="mint" placeholder="mint address (…pump)" value="{example}"> <button onclick="go()">评分</button></p>
 <div id="out"></div>
 <script>
-async function go(){{
+async function go(){
   const m=document.getElementById('mint').value.trim();
   const out=document.getElementById('out'); out.innerHTML='<p class="muted">读取链上…</p>';
-  try{{
+  try{
     const r=await fetch('score/'+encodeURIComponent(m)); const d=await r.json();
-    if(!d.ok){{ out.innerHTML='<div class="card">无法评分：'+ (d.reason||'unknown') +'</div>'; return; }}
-    const flags=(d.flags||[]).map(f=>`<span class="flag ${{['no_history'].includes(f)?'':'ok'}}">${{f}}</span>`).join('');
-    const factors=(d.top_factors||[]).map(f=>`<tr><td>${{f.feature}}</td><td>${{f.value}}</td><td>${{f.contribution>0?'+':''}}${{f.contribution}}</td></tr>`).join('');
+    if(!d.ok){ out.innerHTML='<div class="card">无法评分：'+ (d.reason||'unknown') +'</div>'; return; }
+    const flags=(d.flags||[]).map(f=>`<span class="flag ${['no_history'].includes(f)?'':'ok'}">${f}</span>`).join('');
+    const factors=(d.top_factors||[]).map(f=>`<tr><td>${f.feature}</td><td>${f.value}</td><td>${f.contribution>0?'+':''}${f.contribution}</td></tr>`).join('');
     out.innerHTML=`<div class="card">
-      <div class="big" style="color:${{d.p_rug_300s>0.5?'#ff4d6d':'#22c55e'}}">${{(d.p_rug_300s*100).toFixed(1)}}%</div>
-      <div class="sub">300 秒内跑路概率（${{d.model_version}}）· 毕业概率 ${{(d.p_graduation*100).toFixed(1)}}%</div>
-      <p>${{flags||'<span class="flag ok">no flags</span>'}}</p>
+      <div class="big" style="color:${d.p_rug_300s>0.5?'#ff4d6d':'#22c55e'}">${(d.p_rug_300s*100).toFixed(1)}%</div>
+      <div class="sub">300 秒内跑路概率（${d.model_version}）· 毕业概率 ${(d.p_graduation*100).toFixed(1)}%</div>
+      <p>${flags||'<span class="flag ok">no flags</span>'}</p>
       <table><tr><th>曲线储备</th><th>dev_share</th><th>dev 首买</th><th>10s 买数</th>
       <th>捆绑钱包</th><th>内部人占比</th><th>历史发币</th><th>历史跑路率</th></tr>
-      <tr><td>${{d.curve.real_quote_reserves_sol}} SOL</td><td>${{d.inputs.dev_share}}</td>
-      <td>${{d.inputs.dev_buy_sol}}</td><td>${{d.inputs.n_buys_10s}}</td>
-      <td>${{d.inputs.bundle_wallets}}</td><td>${{d.inputs.insider_share}}</td>
-      <td>${{d.inputs.prior_n}}</td><td>${{d.inputs.prior_rug_rate}}</td></tr></table>
-      <table><tr><th>贡献因子</th><th>值</th><th>系数×z</th></tr>${{factors}}</table>
-      <p class="muted">creator ${{d.creator}}</p></div>`;
-  }}catch(e){{ out.innerHTML='<div class="card">请求失败：'+e+'</div>'; }}
-}}
+      <tr><td>${d.curve.real_quote_reserves_sol} SOL</td><td>${d.inputs.dev_share}</td>
+      <td>${d.inputs.dev_buy_sol}</td><td>${d.inputs.n_buys_10s}</td>
+      <td>${d.inputs.bundle_wallets}</td><td>${d.inputs.insider_share}</td>
+      <td>${d.inputs.prior_n}</td><td>${d.inputs.prior_rug_rate}</td></tr></table>
+      <table><tr><th>贡献因子</th><th>值</th><th>系数×z</th></tr>${factors}</table>
+      <p class="muted">creator ${d.creator}</p></div>`;
+  }catch(e){ out.innerHTML='<div class="card">请求失败：'+e+'</div>'; }
+}
 </script></div></body></html>"""
 
 

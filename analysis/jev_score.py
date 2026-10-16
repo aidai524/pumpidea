@@ -16,13 +16,13 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 F = json.loads((ROOT / "analysis" / "facts.json").read_text())
 
 KEY = None
-env = ROOT.parent / "platform" / ".env"
+env = ROOT / ".env"   # 本仓库自己的 .env（抽取前曾读兄弟仓库 platform/.env）
 if env.exists():
     for line in env.read_text().splitlines():
         if line.startswith("TYPESAFE_API_KEY="):
             KEY = line.split("=", 1)[1].strip()
 if not KEY:
-    raise SystemExit("没有 TYPESAFE_API_KEY（在 platform/.env 里）")
+    raise SystemExit("没有 TYPESAFE_API_KEY（在本仓库 .env 里）")
 EP = "https://api.typesafe.ai/v1/systemone"
 
 QUESTIONS = {

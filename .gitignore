@@ -1,0 +1,49 @@
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.ipynb_checkpoints/
+
+# 密钥与本地配置（切勿提交）
+.env
+.env.*
+!.env.example
+*.key
+secrets/
+.envrc
+
+# 编辑器
+.idea/
+.vscode/
+
+# Node（仅用于前端构建；运行时零依赖，产物提交进仓库）
+node_modules/
+
+# analysis：数据集 142 MB，用 analysis/fetch_data.sh 复现（幂等）。
+# 保留 data/loopholetape_README.md —— 里面有每个文件的 sha256，可钉住发布版本。
+data/launches/
+data/launches_legacy/
+data/graduation_pools/
+
+# pulse：运行时数据、重建的站点数据与卡片（./run.sh 生成）
+pulse/runtime/
+pulse/site/data.json
+pulse/site/cards/
+
+# audit：采集数据库与运行日志
+audit/runtime/
+audit/stream_report.json
+audit/stream_report.csv
+audit/data/price_cache.json
+audit/data/decimals_cache.json
+audit/data/stream_prices_*.json
+audit/data/stream_decimals_*.json
+
+# risk：创建者历史库（本地构建，37 MB）
+risk/history.sqlite3
+risk/stream_history.sqlite3

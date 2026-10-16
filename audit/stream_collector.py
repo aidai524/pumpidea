@@ -279,6 +279,11 @@ async def collector(minutes: float, log_every: int) -> None:
     RUNTIME.mkdir(parents=True, exist_ok=True)
     con = sqlite3.connect(DB, timeout=60)
     con.execute("PRAGMA busy_timeout=60000")
+    # WAL 文件上限 256MB。
+    # 默认的 WAL 文件只会涨不会缩（它是高水位）；2026-10-15 / 10-16 两次失控
+    # 分别涨到 33.5G / 35.5G 把磁盘打满，采集器随之 disk I/O error 死掉数小时。
+    # journal_size_limit 是**每连接**设置、存不进库里 —— 必须写在连接建立处。
+    con.execute("PRAGMA journal_size_limit=268435456")
     con.executescript(SCHEMA)
     have = {r[1] for r in con.execute("PRAGMA table_info(events)")}
     for col, typ in (("creator", "TEXT"), ("user", "TEXT"), ("is_buy", "INTEGER"),

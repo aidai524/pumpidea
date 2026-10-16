@@ -1,0 +1,237 @@
+<!doctype html><html lang="zh"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>pump.fun 发币经济 · 全量链上观察</title>
+<style>
+:root{
+  --bg:#07090d; --surface:#0e131b; --line:#1b2431;
+  --ink:#e8edf4; --dim:#5d6a7a; --sub:#9aa6b6;
+  --accent:#38bdf8; --violet:#a78bfa; --amber:#f59e0b;
+  --good:#22c55e; --bad:#ff4d6d; --bar:#334155;
+  --r-card:12px; --r-ctl:8px;
+  --sp1:4px; --sp2:8px; --sp3:12px; --sp4:16px; --sp6:24px; --sp8:32px; --sp12:48px;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:ui-monospace,Menlo,monospace;font-size:14px;line-height:1.65}
+.wrap{max-width:1280px;margin:0 auto;padding:var(--sp8) var(--sp6) 64px}
+header{border-bottom:1px solid var(--line);padding-bottom:var(--sp6);margin-bottom:var(--sp8)}
+h1{font-size:22px;letter-spacing:2px;margin:0 0 var(--sp2)}
+.sub{color:var(--sub);font-size:12px}
+.sub b{color:var(--ink);font-weight:600}
+h2{font-size:13px;letter-spacing:3px;color:var(--sub);font-weight:600;
+  margin:var(--sp12) 0 var(--sp3);padding-bottom:var(--sp2);border-bottom:1px solid var(--line)}
+h2 span{color:var(--dim);letter-spacing:1px;font-weight:400;margin-left:var(--sp2)}
+.note{color:var(--dim);font-size:12px;margin:var(--sp2) 0 var(--sp3)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:var(--sp3);margin:var(--sp4) 0}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-card);padding:var(--sp4)}
+.kpi .k{color:var(--dim);font-size:11px;letter-spacing:1.5px}
+.kpi .v{font-size:22px;font-weight:600;margin-top:var(--sp1);letter-spacing:-0.5px}
+.kpi .h{color:var(--dim);font-size:11px;margin-top:var(--sp1)}
+.kpi.bad .v{color:var(--bad)} .kpi.good .v{color:var(--good)} .kpi.amber .v{color:var(--amber)}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-card);
+  padding:var(--sp3);margin:var(--sp3) 0}
+svg{display:block;width:100%;height:auto}
+table{width:100%;border-collapse:collapse;margin-top:var(--sp2)}
+th,td{text-align:left;padding:var(--sp2) var(--sp3);border-bottom:1px solid var(--line)}
+th{color:var(--dim);font-size:11px;letter-spacing:1.5px;font-weight:400}
+tr:last-child td{border-bottom:0}
+td{font-variant-numeric:tabular-nums}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:var(--sp3)}
+.track{display:inline-block;width:110px;height:6px;background:var(--bg);
+  border-radius:99px;overflow:hidden;vertical-align:middle;margin-left:var(--sp2)}
+.track .fill{display:block;height:100%}
+.kindline{display:flex;align-items:center;gap:var(--sp3);padding:var(--sp2) 0}
+.kindname{flex:0 0 240px;font-size:12px}
+.kindbar{flex:1;height:10px;background:var(--bg);border-radius:99px;overflow:hidden}
+.kindbar i{display:block;height:100%}
+.kindnum{flex:0 0 150px;text-align:right;color:var(--sub);font-size:12px;
+  font-variant-numeric:tabular-nums}
+.callout{background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--amber);
+  border-radius:var(--r-ctl);padding:var(--sp3) var(--sp4);margin:var(--sp3) 0;font-size:13px}
+.callout b{color:var(--amber)}
+ul.caveats{margin:var(--sp2) 0 0;padding-left:var(--sp6);color:var(--sub);font-size:12px}
+ul.caveats li{margin:var(--sp2) 0}
+ul.caveats b{color:var(--ink);font-weight:600}
+footer{color:var(--dim);font-size:11px;border-top:1px solid var(--line);
+  margin-top:var(--sp12);padding-top:var(--sp4)}
+a{color:var(--accent);text-decoration:none}
+</style></head><body><div class="wrap">
+
+<header>
+  <h1>pump.fun 发币经济 · 全量链上观察</h1>
+  <div class="sub">
+    窗口 <b>2026-09-08 ~ 2026-10-07</b>
+    （30 天）·
+    数据集 <b>1,082,101 行</b>（45 列）·
+    标签校验 召回 <b>98.61%</b> / 精确 <b>99.98%</b>
+    （884,804 个 classic）·
+    本页所有数字来自 <b>analysis/facts.json</b>，不手写
+  </div>
+</header>
+
+<h2>一页速览</h2>
+<div class="kpis">
+  <div class="kpi"><div class="k">30 天新发代币</div><div class="v">1,156,058</div><div class="h">日均 38,535</div></div>
+  <div class="kpi"><div class="k">名义毕业率</div><div class="v">2.06%</div><div class="h">毕业 23,793 个</div></div>
+  <div class="kpi bad"><div class="k">有机毕业率</div><div class="v">0.86%</div><div class="h">扣除机器人捆绑后的真实值</div></div>
+  <div class="kpi amber"><div class="k">瞬时(捆绑)毕业占毕业</div><div class="v">58.0%</div><div class="h">13,796 个 2 秒内完成</div></div>
+  <div class="kpi"><div class="k">300 秒内被判跑路</div><div class="v">57.7%</div><div class="h">667,344 个</div></div>
+  <div class="kpi"><div class="k">创建者 60 秒内卖出</div><div class="v">50.6%</div><div class="h">584,879 个</div></div>
+  <div class="kpi good"><div class="k">30 天净收入</div><div class="v">$54.55M</div><div class="h">用户付费 $171.62M</div></div>
+  <div class="kpi"><div class="k">30 天交易量</div><div class="v">$15.36B</div><div class="h">隐含综合费率 1.12%</div></div>
+  <div class="kpi good"><div class="k">发币端抽成率</div><div class="v">1.077%</div><div class="h">高毛利：曲线 1.25% 中的协议部分</div></div>
+  <div class="kpi amber"><div class="k">PumpSwap 量占比</div><div class="v">76.2%</div><div class="h">但只贡献 27.9% 的收入</div></div>
+</div>
+
+<div class="callout">
+  <b>结构错配</b>：PumpSwap 的交易量是发币曲线的 <b>3.2 倍</b>，
+  但留给平台的收入只有发币端的 <b>0.39 倍</b> ——
+  因为它的协议分成只有 0.05%（曲线是 0.95%）。<b>76% 的量只换来 28% 的收入。</b>
+</div>
+
+<h2>规模与节奏 <span>supply ↑ / quality ↓</span></h2>
+<div class="panel"><svg viewBox="0 0 1240 340" xmlns="http://www.w3.org/2000/svg" font-family="ui-monospace,Menlo,monospace" role="img"><rect width="1240" height="340" style="fill:var(--surface)"/><line x1="84" y1="282.0" x2="1156" y2="282.0" style="stroke:var(--line)" stroke-dasharray="3 3"/><text x="74" y="286.0" font-size="11" text-anchor="end" style="fill:var(--dim)">0k</text><text x="1166" y="286.0" font-size="11" style="fill:var(--accent)">0.0%</text><line x1="84" y1="158.0" x2="1156" y2="158.0" style="stroke:var(--line)" stroke-dasharray="3 3"/><text x="74" y="162.0" font-size="11" text-anchor="end" style="fill:var(--dim)">31k</text><text x="1166" y="162.0" font-size="11" style="fill:var(--accent)">0.8%</text><line x1="84" y1="34.0" x2="1156" y2="34.0" style="stroke:var(--line)" stroke-dasharray="3 3"/><text x="74" y="38.0" font-size="11" text-anchor="end" style="fill:var(--dim)">62k</text><text x="1166" y="38.0" font-size="11" style="fill:var(--accent)">1.6%</text><rect x="91.9" y="60.6" width="20.0" height="221.4" rx="1.5" style="fill:var(--bar)" opacity="0.9"/><rect x="127.6" y="70.7" width="20.0" height="211.3" rx="1.5" style="fill:var(--bar)" opacity="0.9"/><rect x="163.3" y="85.9" width="20.0" height="196.1" rx="1.5" style="fill:var(--bar)" opacity="0.9"/><rect x="199.1" y="80.5" width="20.0" height="201.5" rx="1.5" style="fill:var(--bar)" opacity="0.9"/><rect x="234.8" y="74.8" width="20.0" height="207.2" rx="1.5" style="fill:var(--bar)" opacity="0.9"/><rect x="270.5" y="96.6" width="20.0" height="185.4" rx="1.5" style="fill:var(--bar)" opacity="0.9"/><rect x="306.3" y="81.8" width="20.0" height="200.2" rx="1.5" style="fill:var(--bar)" opacity="0.9"/><rect x="342.0" y="87.0" width="20.0" height="195.0" rx="1.5" style="fill:var(--bar)" opacity="0.9"/><rect x="377.7" y="109.8" width="20.0" height="172.2" rx="1.5" style="fill:var(--bar)" opacity="0.9"/><rect x="413.5" y="114.0" width="20.0" height="168.0" rx="1.5" style="fill:var(--bar)" opacity="0.9"/><rect x="449.2" y="131.3" width="20.0" height="150.7" rx="1.5" style="fill:var(--bar)" opacity="0.9"/><rect x="484.9" y="110.8" width="20.0" height="171.2" rx="1.5" style="fill:var(--bar)" opacity="0.9"/><rect x="520.7" y="144.6" width="20.0" height="137.4" rx="1.5" style="fill:var(--bar)" opacity="0.9"/><rect x="556.4" y="144.8" width="20.0" height="137.2" rx="1.5" style="fill:var(--bar)" opacity="0.9"/><rect x="592.1" y="144.3" width="20.0" height="137.7" rx="1.5" style="fill:var(--bar)" opacity="0.9"/><rect x="627.9" y="150.9" width="20.0" height="131.1" rx="1.5" style="fill:var(--bar)" opacity="0.9"/><rect x="663.6" y="144.6" width="20.0" height="137.4" rx="1.5" style="fill:var(--bar)" opacity="0.9"/><rect x="699.3" y="160.1" width="20.0" height="121.9" rx="1.5" style="fill:var(--bar)" opacity="0.9"/><rect x="735.1" y="155.2" width="20.0" height="126.8" rx="1.5" style="fill:var(--bar)" opacity="0.9"/><rect x="770.8" y="138.9" width="20.0" height="143.1" rx="1.5" style="fill:var(--bar)" opacity="0.9"/><rect x="806.5" y="127.4" width="20.0" height="154.6" rx="1.5" style="fill:var(--bar)" opacity="0.9"/><rect x="842.3" y="147.4" width="20.0" height="134.6" rx="1.5" style="fill:var(--bar)" opacity="0.9"/><rect x="878.0" y="145.8" width="20.0" height="136.2" rx="1.5" style="fill:var(--bar)" opacity="0.9"/><rect x="913.7" y="163.7" width="20.0" height="118.3" rx="1.5" style="fill:var(--bar)" opacity="0.9"/><rect x="949.5" y="183.4" width="20.0" height="98.6" rx="1.5" style="fill:var(--bar)" opacity="0.9"/><rect x="985.2" y="169.7" width="20.0" height="112.3" rx="1.5" style="fill:var(--bar)" opacity="0.9"/><rect x="1020.9" y="168.6" width="20.0" height="113.4" rx="1.5" style="fill:var(--bar)" opacity="0.9"/><rect x="1056.7" y="158.0" width="20.0" height="124.0" rx="1.5" style="fill:var(--bar)" opacity="0.9"/><rect x="1092.4" y="148.5" width="20.0" height="133.5" rx="1.5" style="fill:var(--bar)" opacity="0.9"/><rect x="1128.1" y="164.9" width="20.0" height="117.1" rx="1.5" style="fill:var(--bar)" opacity="0.9"/><polyline points="101.9,186.5 137.6,181.4 173.3,165.9 209.1,156.0 244.8,161.2 280.5,148.4 316.3,163.6 352.0,172.9 387.7,152.2 423.5,96.0 459.2,115.2 494.9,91.2 530.7,114.5 566.4,96.5 602.1,117.0 637.9,97.7 673.6,107.0 709.3,109.1 745.1,130.6 780.8,134.7 816.5,154.2 852.3,131.2 888.0,161.0 923.7,198.0 959.5,200.9 995.2,212.4 1030.9,205.1 1066.7,192.6 1102.4,190.8 1138.1,163.5" fill="none" style="stroke:var(--accent)" stroke-width="2.4" stroke-linejoin="round"/><text x="101.9" y="302" font-size="11" text-anchor="middle" style="fill:var(--dim)">10-07</text><text x="173.3" y="302" font-size="11" text-anchor="middle" style="fill:var(--dim)">10-05</text><text x="244.8" y="302" font-size="11" text-anchor="middle" style="fill:var(--dim)">10-03</text><text x="316.3" y="302" font-size="11" text-anchor="middle" style="fill:var(--dim)">10-01</text><text x="387.7" y="302" font-size="11" text-anchor="middle" style="fill:var(--dim)">09-29</text><text x="459.2" y="302" font-size="11" text-anchor="middle" style="fill:var(--dim)">09-27</text><text x="530.7" y="302" font-size="11" text-anchor="middle" style="fill:var(--dim)">09-25</text><text x="602.1" y="302" font-size="11" text-anchor="middle" style="fill:var(--dim)">09-23</text><text x="673.6" y="302" font-size="11" text-anchor="middle" style="fill:var(--dim)">09-21</text><text x="745.1" y="302" font-size="11" text-anchor="middle" style="fill:var(--dim)">09-19</text><text x="816.5" y="302" font-size="11" text-anchor="middle" style="fill:var(--dim)">09-17</text><text x="888.0" y="302" font-size="11" text-anchor="middle" style="fill:var(--dim)">09-15</text><text x="959.5" y="302" font-size="11" text-anchor="middle" style="fill:var(--dim)">09-13</text><text x="1030.9" y="302" font-size="11" text-anchor="middle" style="fill:var(--dim)">09-11</text><text x="1102.4" y="302" font-size="11" text-anchor="middle" style="fill:var(--dim)">09-09</text><text x="84" y="22" font-size="11" style="fill:var(--dim)">30 天：供给与真实质量反向</text><rect x="84" y="10" width="10" height="10" rx="2" style="fill:var(--bar)"/><text x="100" y="19" font-size="11" style="fill:var(--dim)">柱＝每日发币量（左轴）</text><line x1="274" y1="15" x2="296" y2="15" style="stroke:var(--accent)" stroke-width="2.4"/><text x="304" y="19" font-size="11" style="fill:var(--dim)">线＝有机毕业率（右轴）</text></svg></div>
+<div class="grid2">
+  <div><table>
+    <tr><th>周（UTC）</th><th>发币/日</th><th>名义毕业率</th><th>有机毕业率</th><th>捆绑占毕业</th><th>300s 跑路率</th></tr>
+    <tr><td>09-08</td><td>29,368</td><td>2.26%</td><td>0.57%</td><td>74.8%</td><td>54.5%</td></tr><tr><td>09-15</td><td>34,309</td><td>2.27%</td><td>0.98%</td><td>56.9%</td><td>57.9%</td></tr><tr><td>09-22</td><td>37,136</td><td>2.17%</td><td>1.17%</td><td>45.9%</td><td>60.2%</td></tr><tr><td>09-29</td><td>48,787</td><td>1.86%</td><td>0.80%</td><td>56.8%</td><td>58.6%</td></tr>
+  </table>
+  <div class="note">首周 → 末周：发币量 <b>+74.1%</b>，
+  名义毕业率 <b>-0.477pp</b>，
+  捆绑占毕业 <b>-17.28pp</b>。
+  供给在猛涨，成功率在跌 —— 零成本创建意味着边际进入者永远是最差的那一批。</div>
+  </div>
+  <div><table>
+    <tr><th>结局（30 天）</th><th>数量</th><th>口径</th></tr>
+    <tr><td>真毕业</td><td>23,793</td><td>曲线吃满 85 SOL 或见迁移</td></tr>
+    <tr><td>其中瞬时(捆绑)毕业</td><td>13,796</td><td>发币 2 秒内完成，中位耗时 0.37s</td></tr>
+    <tr><td>其中有机毕业</td><td>9,997</td><td>中位耗时 228s</td></tr>
+    <tr><td>曲线峰值 p50</td><td>2.01 SOL</td><td>一半的币整个生命周期没超过它</td></tr>
+    <tr><td>毕业后 30 分钟跌 90%+</td><td>62.4%</td><td>6,545 个池，中位崩盘 475s</td></tr>
+  </table>
+  <div class="note">捆绑与有机的中位耗时差
+  <b>623 倍</b>
+  —— 0.367 秒意味着币还没被人看见就已经走完曲线。</div>
+  </div>
+</div>
+
+<h2>三种发币模式 <span>不要混算</span></h2>
+<div class="panel"><div class="kindline"><span class="kindname">classic（SOL 计价、非 mayhem）</span><span class="kindbar"><i style="width:62.6%;background:var(--accent)"></i></span><span class="kindnum">723,695　62.6%</span></div><div class="kindline"><span class="kindname">mayhem 模式</span><span class="kindbar"><i style="width:26.2%;background:var(--bad)"></i></span><span class="kindnum">302,812　26.2%</span></div><div class="kindline"><span class="kindname">其他计价资产</span><span class="kindbar"><i style="width:11.2%;background:var(--violet)"></i></span><span class="kindnum">129,531　11.2%</span></div><div class="kindline"><span class="kindname">计价未确认</span><span class="kindbar"><i style="width:0.0%;background:var(--dim)"></i></span><span class="kindnum">20　0.0%</span></div>
+  <table>
+    <tr><th>模式</th><th>发币</th><th>名义毕业率</th><th>链上标 complete</th><th>300s 跑路率</th><th>创建者 60s 卖出</th></tr>
+    <tr><td>classic</td><td>723,695</td><td>3.28%</td><td>3.31%</td><td>55.4%</td><td>42.7%</td></tr>
+    <tr><td>mayhem</td><td>302,812</td><td>0.017%</td><td>2.84%</td><td>87.9%</td><td>69.1%</td></tr>
+    <tr><td>other_quote</td><td>129,531</td><td>不可比（非 SOL 计价）</td><td>1.59%</td><td>—</td><td>51.6%</td></tr>
+  </table>
+  <div class="note">
+    mayhem 占发币量 26.2%，毕业率比 classic 低
+    <b>191 倍</b>。
+    <b>「链上标 complete」与「毕业」是两回事</b> —— 引用 mayhem 成功率前必须确认用的是哪个定义。
+    逐日占比全程 20.9%~35.47%，
+    均值 27.01%，没有趋势。
+  </div>
+</div>
+
+<h2>谁在发币 <span>工厂，不是社区</span></h2>
+<div class="grid2">
+  <div class="panel">
+    <div class="note">创建者集中度（classic 子集，139,375 个币）</div>
+    <table>
+      <tr><td>唯一创建者</td><td>59,631</td></tr>
+      <tr><td>人均发币</td><td>2.34 个</td></tr>
+      <tr><td>发币最多的单个钱包</td><td>2,627 个</td></tr>
+      <tr><td>top 1000 创建者</td><td>35.55%</td></tr>
+      <tr><td>占一半发币量所需创建者</td><td>3,651 人</td></tr>
+    </table>
+    <div class="note">即全部创建者的
+      <b>6.1%</b>
+      发了一半的币。</div>
+  </div>
+  <div class="panel">
+    <div class="note">按创建者历史发币数分层（重放特征，129,995 行）</div>
+    <table>
+      <tr><th>此前发过</th><th>币数</th><th>毕业率</th><th>跑路率</th><th>历史均跑路</th><th>均 dev_share</th></tr>
+      <tr><td>0</td><td>48,046</td><td>6.82%</td><td>69.20%</td><td>—</td><td>5.52%</td></tr><tr><td>1</td><td>9,017</td><td>1.63%</td><td>52.91%</td><td>0.69</td><td>2.69%</td></tr><tr><td>2-4</td><td>11,630</td><td>0.81%</td><td>53.05%</td><td>0.66</td><td>2.37%</td></tr><tr><td>5-19</td><td>15,599</td><td>0.69%</td><td>60.30%</td><td>0.67</td><td>2.83%</td></tr><tr><td>20+</td><td>45,703</td><td>0.94%</td><td>68.56%</td><td>0.69</td><td>5.77%</td></tr>
+    </table>
+    <div class="note"><b>反直觉：职业发币者的成功率更低。</b>新钱包是职业发币者的
+      <b>7.3 倍</b>。
+      而那批「发过 20+ 次」的地址平均已跑路
+      <b>0.69 次</b>，仍在持续发币。</div>
+  </div>
+</div>
+
+<div class="grid2">
+  <div class="panel">
+    <div class="note">发币首分钟的捆绑钱包数（129,995 行）</div>
+    <table><tr><th>分位</th><th>钱包数</th><th></th></tr><tr><td>p50</td><td>1 个</td><td><span class="track"><span class="fill" style="width:8.3%;background:var(--violet)"></span></span></td></tr><tr><td>p75</td><td>3 个</td><td><span class="track"><span class="fill" style="width:25.0%;background:var(--violet)"></span></span></td></tr><tr><td>p90</td><td>5 个</td><td><span class="track"><span class="fill" style="width:41.7%;background:var(--violet)"></span></span></td></tr><tr><td>p95</td><td>7 个</td><td><span class="track"><span class="fill" style="width:58.3%;background:var(--violet)"></span></span></td></tr><tr><td>p99</td><td>12 个</td><td><span class="track"><span class="fill" style="width:100.0%;background:var(--violet)"></span></span></td></tr></table>
+    <div class="note">零捆绑 <b>41.4%</b>，
+      ≥5 个 <b>14.4%</b>，≥10 个 <b>2.4%</b>。</div>
+  </div>
+  <div class="panel">
+    <div class="note">创建者首分钟持仓占比 dev_share（139,375 行）</div>
+    <table><tr><th>分位</th><th>占比</th><th></th></tr><tr><td>p50</td><td>1.74%</td><td><span class="track"><span class="fill" style="width:2.2%;background:var(--violet)"></span></span></td></tr><tr><td>p75</td><td>5.69%</td><td><span class="track"><span class="fill" style="width:7.2%;background:var(--violet)"></span></span></td></tr><tr><td>p90</td><td>12.49%</td><td><span class="track"><span class="fill" style="width:15.7%;background:var(--violet)"></span></span></td></tr><tr><td>p95</td><td>15.33%</td><td><span class="track"><span class="fill" style="width:19.3%;background:var(--violet)"></span></span></td></tr><tr><td>p99</td><td>79.31%</td><td><span class="track"><span class="fill" style="width:100.0%;background:var(--violet)"></span></span></td></tr></table>
+    <div class="note">中位 <b>1.74%</b>，但 p99 达
+      <b>79.3%</b> —— 尾部有一批人开局就握着八成。</div>
+  </div>
+</div>
+
+<div class="grid2">
+  <div class="panel">
+    <div class="note">曲线储备峰值 peak_rs（SOL，上限 85）</div>
+    <table><tr><th>分位</th><th>SOL</th><th></th></tr><tr><td>p25</td><td>0.16 SOL</td><td><span class="track"><span class="fill" style="width:0.2%;background:var(--violet)"></span></span></td></tr><tr><td>p50</td><td>2.01 SOL</td><td><span class="track"><span class="fill" style="width:2.4%;background:var(--violet)"></span></span></td></tr><tr><td>p75</td><td>9.86 SOL</td><td><span class="track"><span class="fill" style="width:11.6%;background:var(--violet)"></span></span></td></tr><tr><td>p90</td><td>22.92 SOL</td><td><span class="track"><span class="fill" style="width:27.0%;background:var(--violet)"></span></span></td></tr><tr><td>p95</td><td>42.77 SOL</td><td><span class="track"><span class="fill" style="width:50.3%;background:var(--violet)"></span></span></td></tr><tr><td>p99</td><td>85.00 SOL</td><td><span class="track"><span class="fill" style="width:100.0%;background:var(--violet)"></span></span></td></tr></table>
+  </div>
+  <div class="panel">
+    <div class="note">被发最多的 ticker（43,212 个不同 ticker / 139,147 个币）</div>
+    <table><tr><th>ticker</th><th>币数</th><th>毕业</th><th>跑路率</th></tr><tr><td>SI</td><td>2,126</td><td>64</td><td>60.8%</td></tr><tr><td>AI</td><td>670</td><td>16</td><td>74.3%</td></tr><tr><td>INU</td><td>535</td><td>11</td><td>79.1%</td></tr><tr><td>TEST</td><td>522</td><td>0</td><td>39.9%</td></tr><tr><td>READ</td><td>513</td><td>0</td><td>20.3%</td></tr><tr><td>FIX6900</td><td>358</td><td>6</td><td>24.6%</td></tr><tr><td>CAT</td><td>308</td><td>2</td><td>73.4%</td></tr><tr><td>ANOTHER</td><td>279</td><td>0</td><td>0.4%</td></tr></table>
+    <div class="note">平均每个 ticker 出现 <b>3.22 次</b> —— 代币名称已基本丧失信息量。</div>
+  </div>
+</div>
+
+<h2>钱去哪了</h2>
+<div class="grid2">
+  <div class="panel">
+    <table>
+      <tr><th>30 天</th><th>交易量</th><th>用户付费</th><th>平台净收入</th><th>抽成率</th></tr>
+      <tr><td>发币曲线（bonding curve）</td><td>$3.65B</td><td>$55.32M</td><td>$39.34M</td><td>1.077%</td></tr>
+      <tr><td>PumpSwap（毕业后）</td><td>$11.71B</td><td>$116.30M</td><td>$15.21M</td><td>0.130%</td></tr>
+      <tr><td><b>合计</b></td><td><b>$15.36B</b></td><td><b>$171.62M</b></td><td><b>$54.55M</b></td><td><b>0.355%</b></td></tr>
+    </table>
+  </div>
+  <div class="panel">
+    <div class="note">量与收入的倒挂</div>
+    <div class="kindline"><span class="kindname">交易量占比</span>
+      <span class="kindbar"><i style="width:76.2%;background:var(--bar)"></i></span>
+      <span class="kindnum">PumpSwap 76%</span></div>
+    <div class="kindline"><span class="kindname">净收入占比</span>
+      <span class="kindbar"><i style="width:27.9%;background:var(--amber)"></i></span>
+      <span class="kindnum">PumpSwap 28%</span></div>
+    <div class="note">一笔交易的钱怎么分（当前费率）</div>
+    <table>
+      <tr><td>曲线上用户付 1.25%</td><td>0.30% → 创建者<br>0.95% → pump.fun</td></tr>
+      <tr><td>PumpSwap 用户付 0.30%</td><td>0.05% → 创建者<br>0.20% → LP<br>0.05% → pump.fun</td></tr>
+    </table>
+  </div>
+</div>
+
+<div class="panel">
+  <div class="note">独立校验：不依赖任何第三方，只用公开链上数据把量级钉住</div>
+  <table>
+    <tr><td>Σ peak_rs（32 天，SOL）</td><td>5,869,339 SOL</td></tr>
+    <tr><td>按 SOL 价换算</td><td>$674.62M（@ $114.94/SOL，CoinGecko 2026-10-08）</td></tr>
+    <tr><td>曲线毛手续费下界</td><td>$8.43M</td></tr>
+    <tr><td>其中协议分成下界</td><td>$6.41M</td></tr>
+    <tr><td>对比实际 30 天费用</td><td>$171.62M（<b>27 倍</b>）</td></tr>
+  </table>
+  <div class="note">下界 = 费率 × Σ peak_rs；只含曲线的**买入净流入**，不含卖出侧、不含同一笔钱反复买卖的周转、不含毕业后的 PumpSwap。差距不是错误，而是「同一笔钱在曲线上被反复买卖了多少次」的度量。</div>
+</div>
+
+<h2>已知缺口 <span>读任何结论前先读这里</span></h2>
+<ul class="caveats"><li><b>窗口只有 30~32 天</b> —— 不足以谈季节性，也不足以判断趋势是否持续</li><li><b>2026-09-27 前解码器漏约 48% 买单</b> —— KI-02 —— 涉时序的分析只用 09-27 之后的 5 天</li><li><b>f10_* 在旧子集是非随机抽样</b> —— KI-01 —— 干净窗口（09-27 起）改为逐币重放 tape_replay，占 99.74%</li><li><b>rugged 与 graduated 不互斥</b> —— KI-13 —— 9.9% 兼有，故「跑路率」≠ 1 − 毕业率</li><li><b>rugged 是观察规则，非已验证欺诈</b> —— 多数是创建者在小曲线上砸自己的盘</li><li><b>mayhem 占比与第三方差 3.5 倍</b> —— 本报告 26% vs 一份 2026-01 的 Dune 分析约 91%，更可能来自口径</li><li><b>收入下界比实际低约 20 倍</b> —— 下界只含曲线净流入；它的用途是校验量级，不是估计值</li><li><b>DefiLlama 的量与费口径不一致</b> —— 它的 PumpSwap 量会过滤刷量池，费用不过滤 —— 不要用量除费</li></ul>
+
+<footer>
+  数据来源：loopholetape 日统计 API 与 HF 数据集 <i>pump.fun launches with outcomes</i>（CC BY 4.0）、
+  DefiLlama（pump.fun / pumpswap）、pump.fun 官方文档 docs/fees、CoinGecko（SOL $114.94）。
+  <br>口径与推导见 <b>report.md</b>，数字来源见 <b>analysis/facts.json</b>（由 analyze.py 生成）。
+  本页由 <b>analysis/make_dashboard.py</b> 生成，只读 facts.json，不重算指标。
+</footer>
+</div></body></html>
