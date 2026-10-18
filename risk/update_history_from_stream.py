@@ -97,8 +97,9 @@ def main() -> None:
                     help="结算后再过 N 小时重新分类（默认 6 小时）")
     ap.add_argument("--revisit-window", type=float, default=48.0,
                     help="首见在 N 小时内才继续重访；更早的永久落定（默认 48 小时）")
-    ap.add_argument("--max-per-run", type=int, default=5000,
-                    help="每轮最多结算多少个 mint（保证运行时长上界）")
+    ap.add_argument("--max-per-run", type=int, default=1000,
+                    help="每轮最多结算多少个 mint（实测 ~0.33s/mint，1000 ≈ 5.5 分钟，
+                          这就是读快照的时长上界）")
     args = ap.parse_args()
 
     now = int(time.time())
@@ -110,8 +111,14 @@ def main() -> None:
     src = sqlite3.connect(f"file:{args.stream_db}?mode=ro", uri=True, timeout=30)
     src.execute("PRAGMA query_only=1")           # 明确只读，不给采集器添锁
     since = int(now - args.discover_hours * 3600)
+    # ⛔ INDEXED BY 是必须的，不要删。
+    # 不加时 SQLite 为了方便 GROUP BY 免排序，会选 idx_events_mint —— 那等于**顺着
+    # mint 索引扫全表**（实测: 4800 万行 → 分钟级，而且全程持读快照，把 WAL 的
+    # checkpoint 水位线钉死 —— 正是这个 bug 在 2026-10-16 重演了一次事故）。
+    # 加上后走 idx_events_ts 的时间范围扫描 + 临时 B 树分组：实测 1 小时窗口 0 秒。
+    # 验证方法：EXPLAIN QUERY PLAN 必须看到 “SEARCH events USING INDEX idx_events_ts”。
     found = src.execute("""
-        SELECT mint, min(ts) FROM events
+        SELECT mint, min(ts) FROM events INDEXED BY idx_events_ts
         WHERE program = 'curve' AND mint IS NOT NULL AND ts > ?
         GROUP BY mint
     """, (since,)).fetchall()
