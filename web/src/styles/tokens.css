@@ -1,4 +1,10 @@
-@import "tailwindcss";
+/* ⛔ source(none) + 显式 @source 是必须的，不要改回自动探测。
+   Tailwind v4 默认会自动探测内容源，而它会扫到 **web/dist/ 里上一次的构建产物**，
+   从压缩后的 bundle 里提出一批 class 候选 —— 实测让 CSS 从 12,470 字节凭空涨到
+   15,086 字节，且使产物不可复现（有没有 dist 会得到不同结果）。
+   因为本项目把 dist/ 提交进了仓库，这个陷阱每次构建都会触发。 */
+@import "tailwindcss" source(none);
+@source "../**/*.{ts,tsx}";
 
 /* ── 唯一的 token 源 ────────────────────────────────────────────
    这套值不是新设计的，是照抄现有三个静态页（audit 对照页 / risk demo /
