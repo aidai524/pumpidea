@@ -9,10 +9,11 @@
 
 ## 0. 一句话现状
 
-四条线（analysis / audit / pulse / risk）已收进独立仓库 `pumpidea`，
-**统一站点的后端（BFF）与前端（React）都已写完并本地验证通过**；
-线上那台 VPS 正在稳定采集（WAL 事故已修复并加固）。
-**站点还没部署到 VPS，也还没有任何鉴权。**
+四条线（analysis / audit / pulse / risk）已收进独立仓库 `pumpidea`；
+**统一站点（BFF + React）已部署到 VPS 并通过端到端验收**。
+**还差：Caddy 路由（需宿主机访问权）与登录鉴权（P5）。**
+
+> ⚠️ 一个正在恶化的点：audit 的每小时报表任务已经**跑不完**了（见 §5-2）。
 
 | 项 | 值 |
 |---|---|
@@ -117,7 +118,7 @@ WEB_PASS=demo-pumpfun
 | **P0** | 项目记忆：`AGENTS.md` + `docs/decisions.md` | ✅ | 两个文件均签入 |
 | **P2** | 薄 BFF：`/api/v1` 9 个端点 | ✅ | 8 个契约测试全绿；本地四路端到端 200 |
 | **P3** | React 前端：5 个路由 | ✅ | `tsc` 零错误；`vite build` 通过；浏览器实测 5 路由无错误 |
-| **P4** | CI + 部署到 VPS | ❌ **未做** | — |
+| **P4** | CI + 部署到 VPS | ✅ 部署完成（Caddy 路由待宿主机访问权） | 见 §3.1 验收记录 |
 | **P5** | 账号（登录 + 会话 + 限流） | ❌ 未做 | 权限分级另有推迟，见 §6 |
 | **P6** | 存储与保留（先聚合后丢弃） | ❌ 未做 | 设计见 spec §14 |
 
@@ -166,6 +167,30 @@ handle_path /risk/*    { reverse_proxy 172.18.0.1:8090 }   # 打分服务
 
 `/pumpfun/` 与 `/pumpfun/api/*` 的站点路由**尚未配置**（属于 P4）。
 
+### 3.1 站点部署验收记录（2026-10-18）
+
+```
+pumpfun-api                 started   127.0.0.1:8000（BFF + SPA 托管）
+pumpfun-pulse-collector     started
+pumpfun-pulse-builder       started
+
+GET /                        200   → SPA（含 id="root"）
+GET /analysis                200   → SPA 深链回落
+GET /api/v1/health           200   → 四路全 ok，pulse age ≈ 11s
+GET /api/v1/{analysis/*,audit/summary,audit/reconciliation,pulse/feed}  全 200
+GET /api/v1/risk/score/<mint> 200  → 约 18 秒
+WAL 稳定 256MB（journal_size_limit 封顶），checkpoint log≈checkpointed
+```
+
+部署踩到并已修的两个坑（都已进仓库）：
+
+1. `audit/` 的内容被 `install-alpine.sh` 铺到 `$APP` **根**（`stream_collector.py`
+   就在根上），所以 audit 的 `facts.json` 在 `$APP/facts.json`，
+   **不是** `$APP/audit/facts.json`。
+2. 周期报表脚本原来用 `>"$LOG"`，**每次运行都清空日志** —— 39 小时没成功却只剩
+   3 行日志。已改成追加写并记录 rc；失败时不再重建页面（否则旧 JSON 会被渲染成
+   刚更新过）。
+
 ---
 
 ## 4. 排查手册（踩过的）
@@ -188,7 +213,20 @@ handle_path /risk/*    { reverse_proxy 172.18.0.1:8090 }   # 打分服务
 ## 5. 未完成（按优先级）
 
 1. **P5 账号** —— 现在**所有 `/api/v1/*` 都是公开的**，包括失败率与创建者集中度。
-   **在 P5 完成前不要把站点暴露到公网。**
+   **在 P5 完成前不要把站点暴露到公网**（`deploy/caddy/pumpidea.caddyfile` 里
+   预留了 basicauth 的过渡方案）。
+
+2. **Caddy 路由未生效** —— 我只拿到 LXC 的 SSH，没有宿主机权限，所以
+   `handle_path /pumpfun/*` 还没加进去。片段在 `deploy/caddy/pumpidea.caddyfile`，
+   需要人工在宿主机执行 `caddy validate && caddy reload`。
+
+3. **audit 的每小时报表已跑不完（正在恶化）** —— `stream_report.py` 要对全部
+   原始事件做日/小时聚合；数据库从 2800 万行涨到 **4900 万行**后单次已超过一小时，
+   于是每小时都被自己的锁跳过 → 数据停在 2026-10-16 15:08（39 小时）。
+   实测证据：手动跑一次 5 分 50 秒仍未完成，同时把 WAL 的 checkpoint 水位线
+   钉在 376 帧不动。
+   **这直接说明 P6（先聚合、后丢弃）不是优化而是必需**。临时缓解：给报表查询
+   加时间窗口（保留期本来就是 7 天）；正解是增量聚合。
 2. **P4 CI + 部署** —— 包括：
    - CI 构建 `web/dist` 并提交；**必须带一条"dist 是否与源码同步"的断言**
      （否则改了源码忘了重新构建，线上就是旧页面）
