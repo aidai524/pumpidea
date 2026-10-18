@@ -8,7 +8,7 @@ PORT="${RISK_PORT:-8090}"
 [ -f "$DEST/score_service.py" ] || { echo "缺 $DEST/score_service.py（先 rsync risk/）"; exit 1; }
 [ -f "$DEST/history.sqlite3" ] || { echo "缺 $DEST/history.sqlite3（本地跑 build_history_db.py 后 rsync）"; exit 1; }
 
-echo "==> OpenRC 服务 pumpfun-risk（:$PORT）"
+echo "==> OpenRC 服务 pumpfun-risk（:${PORT}）"
 cat > /etc/init.d/pumpfun-risk <<SVC
 #!/sbin/openrc-run
 name="pumpfun-risk"

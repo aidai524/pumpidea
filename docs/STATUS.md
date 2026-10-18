@@ -26,15 +26,27 @@
 
 ## 0.1 线上跑的是哪个提交
 
-| 位置 | 内容 | 提交 |
-|---|---|---|
-| VPS `/opt/pumpfun-stream/` | 实际运行的代码（由 `deploy/install-site-alpine.sh` 与 `audit/deploy/install-*.sh` rsync 而来） | `aba278a` |
-| VPS `/tmp/pumpidea-src/` | rsync 的临时副本（脚本从这里执行） | 同上 |
-| 仓库 `main` | 全部代码 + 文档 | 见 `git log -1` |
+VPS 上的源码是 **rsync 过去的、不是 git checkout**，所以它**不能自己 `git log`**。
+为此部署脚本会把提交号写进 `$APP/DEPLOYED_COMMIT`：
 
-> `63e19ac` 及其后只改了 `docs/`，不涉及运行中的代码，所以**不需要为此重新部署**。
-> 判断"要不要重新部署"的方法：`git diff --name-only <线上提交>..HEAD` 里有没有
-> `api/`、`web/`、`pulse/`、`audit/*.py`、`deploy/` 这些路径。
+```bash
+cat /opt/pumpfun-stream/DEPLOYED_COMMIT      # 例：83b6991（末尾 +dirty = 有未提交改动）
+```
+
+提交号由**调用方**传入（远端那份源码没有 `.git`，自己查不到）。用一键脚本即可：
+
+```bash
+sh deploy/push-to-vps.sh        # rsync + 远端部署 + 写入 DEPLOYED_COMMIT
+```
+
+### 怎么判断"要不要重新部署"
+
+```bash
+# 把上次部署的提交号和当前 HEAD 比一下，只看运行中的代码路径
+git diff --name-only <上次部署提交>..HEAD -- api web pulse audit deploy
+```
+
+只改了 `docs/` 就不用部署。
 
 ---
 

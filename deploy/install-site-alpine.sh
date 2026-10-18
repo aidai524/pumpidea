@@ -71,7 +71,7 @@ export PUMPIDEA_API_RISK_CREDS=/etc/pumpfun-web.conf
 export PUMPIDEA_API_WEB_DIST=$APP/web
 CONF
 
-say "OpenRC 服务 pumpfun-api（127.0.0.1:$PORT）"
+say "OpenRC 服务 pumpfun-api（127.0.0.1:${PORT}）"
 cat >/etc/init.d/pumpfun-api <<SVC
 #!/sbin/openrc-run
 name="pumpfun-api"
@@ -139,6 +139,17 @@ SVC
   rc-service pumpfun-pulse-collector restart >/dev/null 2>&1 || rc-service pumpfun-pulse-collector start
   rc-service pumpfun-pulse-builder restart >/dev/null 2>&1 || rc-service pumpfun-pulse-builder start
 fi
+
+# ---------------------------------------------------------------- 记录版本
+# VPS 上的源码是 rsync 过去的、不是 git checkout，所以它**不能自己 git log**。
+# 不写一个版本文件的话，"线上跑的是哪个提交"就只存在于人的记忆里。
+# 提交由**调用方**传入：部署常在远端执行，而远端那份源码是 rsync 过去的、
+# 没有 .git，自己查不到。见 deploy/push-to-vps.sh。
+COMMIT=${DEPLOY_COMMIT:-$(git -C "$ROOT" rev-parse --short HEAD 2>/dev/null || echo unknown)}
+[ "$COMMIT" = unknown ] || [ -z "$(git -C "$ROOT" status --porcelain 2>/dev/null)" ] \
+  || COMMIT="$COMMIT+dirty"
+printf '%s\n' "$COMMIT" >"$APP/DEPLOYED_COMMIT"
+say "部署版本 ${COMMIT}（写入 $APP/DEPLOYED_COMMIT）"
 
 # ---------------------------------------------------------------- 自检
 say "自检"

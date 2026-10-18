@@ -25,6 +25,6 @@ case "${1:-start}" in
       --property=StandardError=append:"$PWD/runtime/stream.log" \
       --property=Restart=on-failure --property=RestartSec=5 \
       "$VENV" stream_collector.py --log-every 300
-    echo "已启动 $UNIT；查看：$0 status"
+    echo "已启动 ${UNIT}；查看：$0 status"
     ;;
 esac

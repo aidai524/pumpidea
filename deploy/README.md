@@ -10,6 +10,18 @@
 
 ## 部署顺序
 
+**一键部署站点（推荐）**：
+
+```bash
+sh deploy/push-to-vps.sh                    # 默认 root@103.3.62.56 /opt/pumpfun-stream
+sh deploy/push-to-vps.sh user@host /other   # 覆盖目标
+```
+
+它做两件事：rsync 到远端 + 在远端跑 `install-site-alpine.sh`，并把**调用方的
+提交号**传进去写进 `$APP/DEPLOYED_COMMIT` —— 远端源码没有 `.git`，自己查不到。
+
+完整手工顺序（首次部署）：
+
 ```bash
 # 1) 链上采集 + 报表 + 周期任务（含 WAL 看门狗）
 sh audit/deploy/install-alpine.sh /opt/pumpfun-stream

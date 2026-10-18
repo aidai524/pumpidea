@@ -26,7 +26,7 @@ $PY stream_report.py --compare --top 15 --max-mints 600 --workers 8 >>"$LOG" 2>&
 rc=$?
 if [ "$rc" -ne 0 ]; then
   # 失败就不重建页面：拿一份旧的 JSON 去渲染会在页面上伪装成"刚更新过"。
-  echo "=== $(date -u +%FT%TZ) stream_report 失败 rc=$rc，跳过页面重建 ===" >>"$LOG"
+  echo "=== $(date -u +%FT%TZ) stream_report 失败 rc=${rc}，跳过页面重建 ===" >>"$LOG"
   exit "$rc"
 fi
 $PY make_stream_page.py --report "$APP/stream_report.json" --out "$OUT/index.html" >>"$LOG" 2>&1

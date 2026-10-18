@@ -27,7 +27,7 @@ SRC=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)/periodic
 [ -d "$APP" ] || { echo "❌ 安装目录不存在: $APP" >&2; exit 1; }
 [ -d "$SRC" ] || { echo "❌ 找不到脚本源: $SRC" >&2; exit 1; }
 
-echo "==> 安装周期任务（APP=$APP）"
+echo "==> 安装周期任务（APP=${APP}）"
 
 install_one() {
   name=$1
