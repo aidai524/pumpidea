@@ -1,0 +1,36 @@
+# pumpidea 统一站点 —— 加到**宿主机**已有 Caddy 的 Caddyfile 里
+# （例如 Plane 的 /root/plane-selfhost/plane-app/Caddyfile.ai）。
+#
+# 位置很关键：必须插在 catch-all 的 `reverse_proxy /* web:3000` **之前**，
+# `handle_path` 的优先级高于 catch-all。
+#
+# BFF 同时托管 SPA 与 API，所以只需要**一条反代**：
+#   /pumpfun/api/v1/...  → Caddy 剥掉 /pumpfun → BFF 收到 /api/v1/...
+#   /pumpfun/            → Caddy 剥掉 /pumpfun → BFF 收到 /        → 返回 SPA
+#   /pumpfun/analysis    → 同上             → BFF 回落 index.html  → SPA 深链
+#
+# ⚠️ 两个必须先确认的点
+#   1) **站点目前没有任何鉴权**（P5 未做，见 docs/STATUS.md §5-1）。
+#      公网暴露前，要么打开下面的 basicauth，要么只在 SSH 隧道里访问。
+#   2) `reverse_proxy` 的地址取决于拓扑 —— 见下方说明，不要照抄。
+
+redir /pumpfun /pumpfun/ permanent
+
+handle_path /pumpfun/* {
+    # ── 边缘鉴权（可选，先于 P5 的过渡手段）────────────────────────────
+    # 与现有报表页/打分服务用同一套凭据文件语义。生成散列：
+    #   caddy hash-password --plaintext 'your-pass'
+    # basicauth {
+    #     demo $2a$14$REPLACE_WITH_CADDY_HASH
+    # }
+
+    # ── 上游地址：三选一，取决于 Caddy 跑在哪 ──────────────────────────
+    # (a) Caddy 与 pumpfun 服务在同一台机器/同一网络命名空间：
+    reverse_proxy 127.0.0.1:8000
+    # (b) Caddy 在 docker 容器里、服务在宿主机：用 docker 网关
+    # reverse_proxy 172.18.0.1:8000
+    # (c) Caddy 在另一台机器 / 另一跳：用 pumpfun 那台的内网 IP，
+    #     并把 BFF 的监听改成 0.0.0.0（deploy/install-site-alpine.sh 里的
+    #     `--host 127.0.0.1` 需要改），再加防火墙只放行 Caddy 的地址。
+    # reverse_proxy <PUMPFUN_HOST_IP>:8000
+}

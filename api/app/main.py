@@ -17,6 +17,8 @@ from typing import Any
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from . import docs, normalize, risk
 from .config import REPO, settings
@@ -53,7 +55,8 @@ async def _on_http(_: Request, exc: HTTPException) -> JSONResponse:
 
 
 # ------------------------------------------------------------------ 索引
-@app.get("/")
+# 注意路径是 /api/v1 而**不是** / —— "/" 必须留给 SPA，否则站点根会返回 JSON。
+@app.get(P)
 def index() -> dict:
     return {
         "service": "pumpidea-api",
@@ -65,7 +68,8 @@ def index() -> dict:
             f"{P}/pulse/feed",
             f"{P}/risk/health", f"{P}/risk/score/{{mint}}",
         ],
-        "docs": "/docs",
+        "openapi": "/docs",
+        "spa": "/ (由 BFF 托管 web/dist)",
     }
 
 
@@ -185,3 +189,26 @@ def health() -> dict:
         "ok": all(s.get("ok") for s in sources),
         "sources": sources,
     }
+
+
+# ------------------------------------------------------------------ 静态前端
+class SpaFiles(StaticFiles):
+    """托管 SPA：文件不存在时回落到 index.html（否则刷新深链会 404）。
+
+    Caddy 用 `handle_path /pumpfun/*` 剥掉前缀，所以这里看到的就是 `/`、`/analysis`
+    这种路径；前端构建时 base=/pumpfun/，资源的绝对路径由浏览器带着前缀请求，
+    再被 Caddy 剥掉 —— 两边是对上的。
+    """
+
+    async def get_response(self, path: str, scope):  # type: ignore[override]
+        try:
+            return await super().get_response(path, scope)
+        except StarletteHTTPException as exc:
+            if exc.status_code == 404:
+                return await super().get_response("index.html", scope)
+            raise
+
+
+# 挂载必须放在最后：先让上面的 /api/v1/* 路由匹配，剩下的才交给静态文件。
+if settings.serve_web and settings.web_dist.is_dir():
+    app.mount("/", SpaFiles(directory=settings.web_dist, html=True), name="web")

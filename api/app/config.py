@@ -30,6 +30,12 @@ class Settings(BaseSettings):
     # 单次打分实测约 19 秒（要扇出 ~80 次 RPC），超时必须宽于它
     risk_timeout: float = 60.0
 
+    # ---- 静态前端 ----
+    # 若该目录存在，BFF 直接托管 SPA（单进程单端口，Caddy 只需一条反代）。
+    # 生产环境由 CI 构建后提交到这里；本地开发通常用 vite(5173) 而不是它。
+    web_dist: pathlib.Path = REPO / "web" / "dist"
+    serve_web: bool = True
+
     # 契约版本。改了归一化口径就跟着改，前端据此判断兼容性。
     contract_version: str = "v1"
 

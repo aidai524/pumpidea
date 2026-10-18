@@ -1,0 +1,74 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  api:
+    name: api 契约测试
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: 安装
+        working-directory: api
+        run: |
+          python -m pip install -q --upgrade pip
+          pip install -q -e ".[dev]"
+      - name: 测试
+        working-directory: api
+        run: python -m pytest -q
+
+  web:
+    name: web 构建 + dist 新鲜度
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - name: 安装
+        working-directory: web
+        run: npm ci
+      - name: 类型检查 + 构建
+        working-directory: web
+        run: npm run build
+
+      # 这一条不是形式主义。本项目把 web/dist 提交进仓库（约定见 docs/decisions.md），
+      # 所以"改了源码忘了重新构建"会直接把旧页面部署上去。而且 Tailwind v4 的自动
+      # 内容探测会扫到 dist 里的旧产物（见 web/README.md 第 0 条），构建产物必须由 CI
+      # 在受控环境里产出，才能保证可复现。
+      - name: dist 必须与源码同步
+        run: |
+          if ! git diff --quiet -- web/dist; then
+            echo "::error::web/dist 与源码不同步。请在本地执行 (cd web && npm run build) 并提交产物。"
+            echo "--- 差异 ---"
+            git diff --stat -- web/dist
+            git diff -- web/dist/index.html || true
+            exit 1
+          fi
+          echo "✅ dist 与源码同步"
+
+  hygiene:
+    name: 仓库卫生
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: 不得提交密钥 / .env / 数据集
+        run: |
+          fail=0
+          for pat in '\.env$' '\.key$' 'secrets/' 'history\.sqlite3$' 'stream\.report\.json$'; do
+            hits=$(git ls-files | grep -E "$pat" | grep -v '\.env\.example' || true)
+            if [ -n "$hits" ]; then
+              echo "::error::不应被跟踪的文件（匹配 $pat）："; echo "$hits"; fail=1
+            fi
+          done
+          n=$(git ls-files data/ | grep -c 'launches' || true)
+          [ "$n" = "0" ] || { echo "::error::数据集不应入库"; fail=1; }
+          exit $fail
