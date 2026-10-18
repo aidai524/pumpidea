@@ -1,18 +1,34 @@
 #!/bin/sh
 # 防重叠：上一个还没跑完就跳过本轮。
-# 理由：这个任务全程持有读快照；15 分钟/小时级的调度一旦重叠，
-# SQLite 的 WAL 就永远拿不到「无读者」的瞬间去重置 —— 2026-10-15/16 两次爆盘即此。
+# 理由：这个任务全程持有读快照；小时级的调度一旦重叠，SQLite 的 WAL 就永远
+# 拿不到「无读者」的瞬间去重置 —— 2026-10-15/16 两次爆盘即此。
 APP=@APP@
 OUT=/var/www/pumpfun
 LOG=/var/log/pumpfun-report.log
 LOCK=/run/pumpfun-report.lock
+
+# 日志**追加**写 + 限体积。
+# 原来用 `>"$LOG"` 每次运行都把日志清空，导致「上一轮为什么失败」永远查不到
+# （实测 39 小时没成功，日志里却只剩 3 行）。
+[ -f "$LOG" ] && [ "$(wc -c < "$LOG")" -gt 1048576 ] && : > "$LOG"
+
 if ! mkdir "$LOCK" 2>/dev/null; then
-  echo "$(date -u +%FT%TZ) 上一轮仍在运行，跳过本轮" >> "$LOG"; exit 0
+  echo "$(date -u +%FT%TZ) 上一轮仍在运行，跳过本轮" >>"$LOG"; exit 0
 fi
 trap 'rmdir "$LOCK" 2>/dev/null' EXIT INT TERM
+
 cd "$APP" || exit 0
 PY="$APP/.venv/bin/python"
 [ -x "$PY" ] || PY=python3
-$PY stream_report.py --compare --top 15 --max-mints 600 --workers 8 >"$LOG" 2>&1
+
+echo "=== $(date -u +%FT%TZ) 开始 ===" >>"$LOG"
+$PY stream_report.py --compare --top 15 --max-mints 600 --workers 8 >>"$LOG" 2>&1
+rc=$?
+if [ "$rc" -ne 0 ]; then
+  # 失败就不重建页面：拿一份旧的 JSON 去渲染会在页面上伪装成"刚更新过"。
+  echo "=== $(date -u +%FT%TZ) stream_report 失败 rc=$rc，跳过页面重建 ===" >>"$LOG"
+  exit "$rc"
+fi
 $PY make_stream_page.py --report "$APP/stream_report.json" --out "$OUT/index.html" >>"$LOG" 2>&1
 cp "$APP/stream_report.csv" "$OUT/stream_report.csv" 2>/dev/null || true
+echo "=== $(date -u +%FT%TZ) 完成 ===" >>"$LOG"

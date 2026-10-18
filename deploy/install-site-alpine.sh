@@ -61,7 +61,9 @@ say "BFF 环境变量 → /etc/conf.d/pumpfun-api"
 cat >/etc/conf.d/pumpfun-api <<CONF
 # 上游产出物的位置。三条线各自写各自的文件，BFF 只读。
 export PUMPIDEA_API_ANALYSIS_FACTS=$APP/analysis/facts.json
-export PUMPIDEA_API_AUDIT_FACTS=$APP/audit/facts.json
+# 注意：audit/ 的内容被 install-alpine.sh 铺到了 $APP 根（stream_collector.py 就在
+# 根上），所以 audit 的 facts.json 在 $APP/facts.json，不是 $APP/audit/facts.json。
+export PUMPIDEA_API_AUDIT_FACTS=$APP/facts.json
 export PUMPIDEA_API_AUDIT_REPORT=$APP/stream_report.json
 export PUMPIDEA_API_PULSE_DATA=$APP/pulse/site/data.json
 export PUMPIDEA_API_RISK_BASE_URL=http://127.0.0.1:8090
