@@ -24,6 +24,20 @@
 
 ---
 
+## 0.1 线上跑的是哪个提交
+
+| 位置 | 内容 | 提交 |
+|---|---|---|
+| VPS `/opt/pumpfun-stream/` | 实际运行的代码（由 `deploy/install-site-alpine.sh` 与 `audit/deploy/install-*.sh` rsync 而来） | `aba278a` |
+| VPS `/tmp/pumpidea-src/` | rsync 的临时副本（脚本从这里执行） | 同上 |
+| 仓库 `main` | 全部代码 + 文档 | 见 `git log -1` |
+
+> `63e19ac` 及其后只改了 `docs/`，不涉及运行中的代码，所以**不需要为此重新部署**。
+> 判断"要不要重新部署"的方法：`git diff --name-only <线上提交>..HEAD` 里有没有
+> `api/`、`web/`、`pulse/`、`audit/*.py`、`deploy/` 这些路径。
+
+---
+
 ## 1. 换一台机器继续做（按顺序执行）
 
 ### 1.1 拿代码
