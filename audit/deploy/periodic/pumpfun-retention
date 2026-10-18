@@ -1,0 +1,21 @@
+#!/bin/sh
+# 加 set -e 与日志；空闲不足 2× 库大小时跳过 VACUUM（老版本在满盘上必然失败且静默）。
+set -eu
+DB=@APP@/runtime/stream.sqlite3
+LOG=/var/log/pumpfun-retention.log
+[ -f "$DB" ] || exit 0
+LOCK=/run/pumpfun-retention.lock
+mkdir "$LOCK" 2>/dev/null || { echo "$(date -u +%FT%TZ) 已有实例，跳过" >> "$LOG"; exit 0; }
+trap 'rmdir "$LOCK" 2>/dev/null' EXIT INT TERM
+
+sqlite3 "$DB" "DELETE FROM events WHERE ts < strftime('%s','now') - @RETENTION_DAYS@*86400;"
+sqlite3 "$DB" ".timeout 30000" "PRAGMA wal_checkpoint(TRUNCATE);"
+
+db_mb=$(( $(stat -c %s "$DB") / 1048576 ))
+free_mb=$(df -P "$DB" | awk 'NR==2{print int($4/1024)}')
+if [ "$free_mb" -gt $((db_mb * 2)) ]; then
+  sqlite3 "$DB" "VACUUM;"
+  echo "$(date -u +%FT%TZ) 已删旧事件 + VACUUM（db=${db_mb}MB free=${free_mb}MB）" >> "$LOG"
+else
+  echo "$(date -u +%FT%TZ) 已删旧事件；跳过 VACUUM（db=${db_mb}MB free=${free_mb}MB，不足 2×）" >> "$LOG"
+fi

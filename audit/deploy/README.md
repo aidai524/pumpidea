@@ -42,6 +42,32 @@ sudo -u pumpstream /opt/pumpfun-stream/.venv/bin/python \
 
 保留策略：安装脚本会装一个每天跑的 **retention timer**（默认保留 7 天，删除后 VACUUM）。
 
+## 周期任务（保留 / 报表 / 历史 / WAL 看门狗）
+
+这 4 个任务在 2026-10-15/16 两次 WAL 事故后全部重写过，源码在 `deploy/periodic/`，
+用安装器装（幂等，可反复跑）：
+
+```bash
+sh deploy/install-periodic-alpine.sh /opt/pumpfun-stream
+# 或改保留天数：RETENTION_DAYS=3 sh deploy/install-periodic-alpine.sh
+```
+
+| 脚本 | 位置 | 作用 |
+|---|---|---|
+| `pumpfun-walwatch` | `/etc/periodic/15min` | 每 15 分钟记一行 WAL 大小 / 可用空间 / checkpoint 读数 |
+| `pumpfun-report` | `/etc/periodic/hourly` | 重建报表页（带防重叠锁） |
+| `pumpfun-history` | `/etc/periodic/hourly` | 创建者历史增量更新（带防重叠锁） |
+| `pumpfun-retention` | `/etc/periodic/daily` | 删 >N 天原始事件 + checkpoint（空间不足时跳过 VACUUM） |
+
+**两条硬要求，改脚本时不要去掉**：
+
+1. **防重叠**（`mkdir` 原子锁）。重分析任务全程持读快照，读快照会**钉住 SQLite
+   WAL 的 checkpoint 水位线** —— 一旦两轮并行，WAL 永远无法重置、无限增长。
+2. **`pumpfun-history` 必须在 hourly 而不是 15min 表里**。它单次要跑几分钟，
+   跑 4 次/小时既没用（`min-age` 本来就是 1 小时），又正是 WAL 失控的直接推手。
+
+完整根因与实测证据见 `docs/decisions.md` 的 WAL 条。
+
 ## 数据拉回本地
 
 ```bash

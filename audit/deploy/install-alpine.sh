@@ -81,15 +81,10 @@ fi
 grep -q 'PULSE_STORE_FIELDS' /etc/conf.d/pumpfun-stream 2>/dev/null || \
   echo 'export PULSE_STORE_FIELDS=0' >> /etc/conf.d/pumpfun-stream
 
-echo "==> 数据保留（/etc/periodic/daily，默认 ${RETENTION_DAYS} 天）"
-cat > /etc/periodic/daily/pumpfun-retention <<EOF
-#!/bin/sh
-DB=$DEST/runtime/stream.sqlite3
-[ -f "\$DB" ] || exit 0
-sqlite3 "\$DB" "DELETE FROM events WHERE ts < strftime('%s','now') - ${RETENTION_DAYS}*86400;"
-sqlite3 "\$DB" "PRAGMA wal_checkpoint(TRUNCATE); VACUUM;"
-EOF
-chmod +x /etc/periodic/daily/pumpfun-retention
+echo "==> 周期任务（保留 / 报表 / 历史 / WAL 看门狗 —— 全部带防重叠锁）"
+# 这些任务在 2026-10-15/16 两次 WAL 事故后重写过，形状是硬要求。
+# 源码在 deploy/periodic/，安装器是 deploy/install-periodic-alpine.sh。
+RETENTION_DAYS="$RETENTION_DAYS" sh "$SRC/deploy/install-periodic-alpine.sh" "$DEST"
 
 echo "==> 日志轮转（每周，>100MB 截断）"
 cat > /etc/periodic/weekly/pumpfun-logrotate <<EOF

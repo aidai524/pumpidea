@@ -1,0 +1,18 @@
+#!/bin/sh
+# 防重叠：上一个还没跑完就跳过本轮。
+# 理由：这个任务全程持有读快照；15 分钟/小时级的调度一旦重叠，
+# SQLite 的 WAL 就永远拿不到「无读者」的瞬间去重置 —— 2026-10-15/16 两次爆盘即此。
+APP=@APP@
+OUT=/var/www/pumpfun
+LOG=/var/log/pumpfun-report.log
+LOCK=/run/pumpfun-report.lock
+if ! mkdir "$LOCK" 2>/dev/null; then
+  echo "$(date -u +%FT%TZ) 上一轮仍在运行，跳过本轮" >> "$LOG"; exit 0
+fi
+trap 'rmdir "$LOCK" 2>/dev/null' EXIT INT TERM
+cd "$APP" || exit 0
+PY="$APP/.venv/bin/python"
+[ -x "$PY" ] || PY=python3
+$PY stream_report.py --compare --top 15 --max-mints 600 --workers 8 >"$LOG" 2>&1
+$PY make_stream_page.py --report "$APP/stream_report.json" --out "$OUT/index.html" >>"$LOG" 2>&1
+cp "$APP/stream_report.csv" "$OUT/stream_report.csv" 2>/dev/null || true

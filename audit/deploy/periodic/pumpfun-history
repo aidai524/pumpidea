@@ -1,0 +1,12 @@
+#!/bin/sh
+# 从 15 分钟改为每小时 + 防重叠。
+# 理由：这是「回看 3 天全表 + 窗口函数」的重查询，单次 >5 分钟；
+# 每 15 分钟跑一次既无用（min-age 本来就是 1 小时）又把 WAL 钉死。
+cd @APP@/risk || exit 0
+LOCK=/run/pumpfun-history.lock
+if ! mkdir "$LOCK" 2>/dev/null; then
+  echo "$(date -u +%FT%TZ) 上一轮仍在运行，跳过本轮" >> /var/log/pumpfun-history.log; exit 0
+fi
+trap 'rmdir "$LOCK" 2>/dev/null' EXIT INT TERM
+@APP@/.venv/bin/python update_history_from_stream.py \
+  --stream-db @APP@/runtime/stream.sqlite3 >>/var/log/pumpfun-history.log 2>&1
