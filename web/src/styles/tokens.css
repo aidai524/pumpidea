@@ -1,0 +1,43 @@
+@import "tailwindcss";
+
+/* ── 唯一的 token 源 ────────────────────────────────────────────
+   这套值不是新设计的，是照抄现有三个静态页（audit 对照页 / risk demo /
+   analysis 仪表盘）已经在用的配色与字体。ui-craft 的规则：
+   项目已有词汇表时必须用它 —— 两套词汇表比任何一套都糟。
+   ──────────────────────────────────────────────────────────── */
+@theme {
+  --color-bg: #07090d;
+  --color-surface: #0e131b;
+  --color-line: #1b2431;
+  --color-ink: #e8edf4;
+  --color-dim: #5d6a7a;
+  --color-sub: #9aa6b6;
+  --color-accent: #38bdf8;
+  --color-violet: #a78bfa;
+  --color-amber: #f59e0b;
+  --color-good: #22c55e;
+  --color-bad: #ff4d6d;
+  --color-bar: #334155;
+
+  --font-sans: ui-monospace, Menlo, monospace;
+  --font-mono: ui-monospace, Menlo, monospace;
+
+  --radius-card: 12px;
+  --radius-ctl: 8px;
+}
+
+/* Ladder 声明（与 spec §4.3 一致）
+   spacing: 1 2 3 4 6 8 12 16（= 4/8/12/16/24/32/48/64px）
+   字号:     11 12 13 14 18 22
+   字重:     400 正文 / 600 强调 / 800 数值
+   圆角:     rounded-card(12) / rounded-ctl(8)    阴影: 不用（用 1px 边框表达层级） */
+
+html, body, #root { height: 100%; }
+body {
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}

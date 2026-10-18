@@ -47,3 +47,8 @@ audit/data/stream_decimals_*.json
 # risk：创建者历史库（本地构建，37 MB）
 risk/history.sqlite3
 risk/stream_history.sqlite3
+
+# web：前端依赖（产物 web/dist 由 CI 构建后提交，见 decisions.md）
+web/node_modules/
+web/.vite/
+web/*.tsbuildinfo
