@@ -20,6 +20,10 @@ trap 'rmdir "$LOCK" 2>/dev/null' EXIT INT TERM
 cd "$APP" || exit 0
 PY="$APP/.venv/bin/python"
 [ -x "$PY" ] || PY=python3
+# 不缓冲：这个任务要跑几分钟到几十分钟，日志里必须能实时看到它走到哪一步。
+# （默认块缓冲会把所有 print 憋到进程退出，中途出问题时日志全是空的。）
+PYTHONUNBUFFERED=1
+export PYTHONUNBUFFERED
 
 echo "=== $(date -u +%FT%TZ) 开始 ===" >>"$LOG"
 $PY stream_report.py --compare --top 15 --max-mints 600 --workers 8 >>"$LOG" 2>&1

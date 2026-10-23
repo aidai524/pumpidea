@@ -1,15 +1,19 @@
 #!/bin/sh
-# WAL 看门狗 —— 每 15 分钟记一行 WAL 大小与 checkpoint 结果。
+# 采集健康看门狗 —— 每 15 分钟记一行：WAL 大小 / checkpoint 读数 / **数据陈旧度**。
 #
-# 存在的理由：2026-10-15 与 10-16 两次 WAL 失控（33.5G / 35.5G）把磁盘打满，
-# 采集器静默死掉数小时。这个脚本既是护栏（超阈值告警），也是证据
-# （真复发时，日志会记录哪个时刻 checkpoint 被挡住、busy 是多少）。
+# 存在的理由（两次，各自盲了很久）：
+#   1. 2026-10-15 / 10-16 两次 WAL 失控（33.5G / 35.5G）把磁盘打满，
+#      采集器静默死掉数小时 → 所以记 wal 与 checkpoint。
+#   2. 2026-10-18T16:17Z Alchemy 月度配额耗尽（429），采集器进程**活着、
+#      每 30 秒重连**，但 11 小时没写进一行 → 所以记 max(ts) 的年龄。
+#      进程在跑 ≠ 数据在涨，这是最贵的一课：没有任何东西盯"数据不涨"。
 set -u
 
 DB=${WALWATCH_DB:-@APP@/runtime/stream.sqlite3}
 LOG=/var/log/pumpfun-walwatch.log
 WARN_MB=${WALWATCH_WARN_MB:-2048}       # WAL 超过 2G 告警
 FREE_WARN_MB=${WALWATCH_FREE_MB:-10240}  # 所在卷可用低于 10G 告警
+AGE_WARN_MIN=${WALWATCH_AGE_MIN:-30}     # 最新事件超过 30 分钟 → 采集可能停了
 
 [ -f "$DB" ] || { echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) DB 缺失: $DB"; exit 0; }
 
@@ -31,10 +35,25 @@ if [ "$wal_mb" -gt "$WARN_MB" ]; then
   trunc=$(sqlite3 "$DB" ".timeout 5000" "PRAGMA wal_checkpoint(TRUNCATE);" 2>&1 | tr -d '\n')
 fi
 
+# 数据陈旧度。max(ts) 走 idx_events_ts，一次索引查找，不是全表扫描
+# （这一点很重要：每 15 分钟跑的东西不能是重查询）。
+max_ts=$(sqlite3 "$DB" ".timeout 5000" "SELECT max(ts) FROM events;" 2>/dev/null)
+age_min="-"
+case "${max_ts:-x}" in
+  ''|*[!0-9]*) ;;                       # 空或非数字 → 保留 "-"
+  *) age_min=$(( ( $(date +%s) - max_ts ) / 60 )) ;;
+esac
+
 ts=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-line="$ts wal=${wal_mb}MB free=${free_mb}MB passive=[$res] truncate=[$trunc]"
+line="$ts wal=${wal_mb}MB free=${free_mb}MB age=${age_min}min passive=[$res] truncate=[$trunc]"
 echo "$line" >> "$LOG"
 
-if [ "$wal_mb" -gt "$WARN_MB" ] || [ "$free_mb" -lt "$FREE_WARN_MB" ]; then
-  echo "WARN $line" >> "$LOG"
+warn=0
+[ "$wal_mb" -gt "$WARN_MB" ] && warn=1
+[ "$free_mb" -lt "$FREE_WARN_MB" ] && warn=1
+if [ "$age_min" != "-" ] && [ "$age_min" -gt "$AGE_WARN_MIN" ]; then
+  warn=1
+  line="$line ⚠️ 数据已 $age_min 分钟没有新增（采集器挂了 / 上游配额耗尽？）"
 fi
+[ "$warn" -eq 1 ] && echo "WARN $line" >> "$LOG"
+exit 0

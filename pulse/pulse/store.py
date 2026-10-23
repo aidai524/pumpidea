@@ -15,6 +15,10 @@ import time
 
 RUNTIME = pathlib.Path(__file__).resolve().parent.parent / "runtime"
 
+# 保留策略（2026-10-23 加的：pulse 库一度涨到 1.9G，全是 counts 的冗余快照）
+COUNTS_KEEP = 200        # 只留最近 200 次 KPI 快照（站点只读最新一行）
+RADAR_KEEP_DAYS = 7      # radar 只留最近 7 天还见过的代币
+
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS graduations (
     mint TEXT PRIMARY KEY,
@@ -52,9 +56,31 @@ def db_path() -> pathlib.Path:
     return RUNTIME / "pulse.sqlite3"
 
 
-def connect() -> sqlite3.Connection:
-    con = sqlite3.connect(db_path())
+def connect(*, readonly: bool = False) -> sqlite3.Connection:
+    """打开 pulse.sqlite3。
+
+    ⚠️ 2026-10-23 事故：`pumpfun-pulse-builder` 在 VPS 上反复因此挂掉——
+    它读这个库的同时 collector 在写，SQLite 默认的 DELETE journal 模式下
+    **读会被写挡住**，于是 `sqlite3.OperationalError: database is locked`，
+    builder 崩了 5 次、超过 OpenRC 的 respawn 上限后**永久停止**，
+    `site/data.json` 静默地停在 1 天前。
+
+    两个修正：
+      1. **只读者用 `mode=ro`**（builder 只读，没必要跟 collector 抢写锁）
+      2. **超时从默认 5 秒提到 10 秒**（写入侧瞬时锁竞争不应立刻报错）
+    另外这个库应该跑在 **WAL** 模式下（读不阻塞写、写不阻塞读），
+    一次性切换：`sqlite3 pulse/runtime/pulse.sqlite3 "PRAGMA journal_mode=WAL;"`
+    （不要写在 connect() 里——切 journal_mode 需要短暂排他锁，
+     在 collector 正在写的时候执行会自己撞上「database is locked」。）
+    """
+    path = db_path()
+    if readonly and path.exists():
+        con = sqlite3.connect(f"file:{path}?mode=ro", uri=True, timeout=10.0)
+        con.row_factory = sqlite3.Row
+        return con
+    con = sqlite3.connect(path, timeout=10.0)
     con.row_factory = sqlite3.Row
+    con.execute("PRAGMA busy_timeout=10000")
     con.executescript(SCHEMA)
     return con
 
@@ -114,6 +140,18 @@ def save_counts(con: sqlite3.Connection, data: dict) -> None:
         "INSERT OR REPLACE INTO counts (generated_at, ts, json) VALUES (?,?,?)",
         (gen, data.get("t") or time.time(), json.dumps(data, ensure_ascii=False)),
     )
+    # ⚠️ 每条 counts 存的是**整个 payload**（含全部 stories 与 tape），实测约 320KB/行。
+    # builder 每 30 秒写一次 → **约 900MB/天**，而站点只读最新一行（latest_counts）。
+    # 2026-10-23 在 VPS 上实测：1.9G 的库里 1.89G 全是这张表的冗余快照。
+    # 不清理就必然把磁盘吃满 —— 这和 audit 的 WAL 是同一类问题：没有保留策略。
+    con.execute(
+        "DELETE FROM counts WHERE generated_at NOT IN "
+        "(SELECT generated_at FROM counts ORDER BY ts DESC LIMIT ?)",
+        (COUNTS_KEEP,),
+    )
+    # radar 同理：只保留最近还见过的代币（按 last_seen 剪枝）
+    con.execute("DELETE FROM radar WHERE last_seen < ?",
+                (time.time() - RADAR_KEEP_DAYS * 86400,))
     con.commit()
 
 

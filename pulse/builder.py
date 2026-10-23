@@ -52,7 +52,7 @@ def _tape_row(r: dict) -> dict:
 
 
 def build() -> pathlib.Path:
-    con = store.connect()
+    con = store.connect(readonly=True)
     grads = store.recent_graduations(con, 500)
     raw = store.latest_counts(con) or {}
     counts = raw.get("counts") or {}
