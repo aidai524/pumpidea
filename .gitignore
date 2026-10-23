@@ -52,3 +52,4 @@ risk/stream_history.sqlite3
 web/node_modules/
 web/.vite/
 web/*.tsbuildinfo
+audit/data/agg_cache.json

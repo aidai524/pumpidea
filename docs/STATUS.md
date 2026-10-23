@@ -11,9 +11,8 @@
 
 四条线（analysis / audit / pulse / risk）已收进独立仓库 `pumpidea`；
 **统一站点（BFF + React）已部署到 VPS 并通过端到端验收**。
+**数据采集已于 2026-10-23 按要求全部停止，原始数据已压缩归档。**
 **还差：Caddy 路由（需宿主机访问权）与登录鉴权（P5）。**
-
-> ⚠️ 一个正在恶化的点：audit 的每小时报表任务已经**跑不完**了（见 §5-2）。
 
 | 项 | 值 |
 |---|---|
@@ -47,6 +46,56 @@ git diff --name-only <上次部署提交>..HEAD -- api web pulse audit deploy
 ```
 
 只改了 `docs/` 就不用部署。
+
+---
+
+## 0.2 采集已停止 + 数据已归档（2026-10-23）
+
+### 现在什么在跑、什么停了
+
+| 状态 | 服务 / 任务 |
+|---|---|
+| **已停止**（并取消开机自启） | `pumpfun-stream`、`pumpfun-pulse-collector`、`pumpfun-pulse-builder` |
+| **已禁用**（移到 `/root/disabled-periodic/`） | `pumpfun-walwatch`、`pumpfun-report`、`pumpfun-history`、`pumpfun-retention` |
+| **仍在跑**（只读服务，不采集） | `pumpfun-api`（站点）、`pumpfun-risk`（打分）、`pumpfun-web`（报表页） |
+
+### 数据怎么归档的
+
+```bash
+/mnt/pumpidea/archive/stream.sqlite3.zst   3.2 GB
+```
+
+- 原始库 19.03 GB（46,758,077 行，2026-10-16 09:51 → 10-23 03:22）
+- `zstd -9 -T2` → **3.49 GB，5.46 : 1（省 81.7%）**
+- 校验：`zstd -t` 完整解码通过；解压后抽查行数与时间跨度一致
+- **运行库已删除** —— 站点不依赖它（`/api/v1/audit/*` 读的是 33KB 的 `stream_report.json`）
+
+**恢复数据库**（需要 ~19G 空闲，当前卷剩 89.6G）：
+
+```bash
+zstd -dc /mnt/pumpidea/archive/stream.sqlite3.zst \
+  > /opt/pumpfun-stream/runtime/stream.sqlite3
+chown alpine:alpine /opt/pumpfun-stream/runtime/stream.sqlite3
+```
+
+### 恢复采集
+
+服务器上有现成脚本（会恢复四个周期任务 + 三个采集服务）：
+
+```bash
+sh /root/restore-collection.sh
+```
+
+> 恢复前先确认 **Alchemy 配额**：10-19 那次 3.5 天断流的直接原因是 WS 握手被拒。
+
+### 归档后的空间
+
+| 文件系统 | 已用 | 可用 |
+|---|---|---|
+| `/mnt/pumpidea`（100G 卷） | 3.2G | **89.6G** |
+| `/`（78G 根盘） | 32.2G | **42.0G** |
+
+根盘上 21.3G 是 `/var/lib/docker`（Plane，不是本项目的，没有动）。
 
 ---
 
@@ -268,7 +317,7 @@ radar 留 7 天），一次性清理回收 **1.75GB**。
   `audit/deploy/install-periodic-alpine.sh`）——这条之前是欠账，已清
 - 站点已部署并在 VPS 上通过端到端验收（见 §3.1）
 
-### 5.2 立即做：修 audit 报表任务（数据正在变旧）
+### 5.2 ✅ 已解决：audit 报表任务（原「跑不完」）
 
 **这是当前唯一在持续产生错误状态的事**：报表页每小时"重建"一次，但底下的
 JSON 停在 2026-10-16 15:08。
@@ -280,6 +329,7 @@ JSON 停在 2026-10-16 15:08。
 | 证据 | 手动跑 5 分 50 秒仍未完成（CPU 仅 2 分 10 秒，全是 I/O），同时把 WAL 的 `checkpointed` 钉在 376 帧不动 |
 | 第一步 | **给聚合查询加时间窗口**（保留期本来就是 7 天）——小改动、立刻恢复数据更新 |
 | 正解 | 增量聚合（= P6） |
+| **结果** | **已解决**。服务器上的版本改用**增量桶缓存**（`data/agg_cache.json`，只重算最近 48h）：聚合 **3.7s**（原来 >1 小时），整轮 98.2s。同时修掉一个 `UnboundLocalError: t_meta`（在赋值前就打印，导致整轮在最后一步崩掉、JSON 永不更新）。两个改动都已收回仓库。 |
 
 ### 5.3 上线前必须
 
